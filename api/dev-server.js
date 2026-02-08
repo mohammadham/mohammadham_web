@@ -41,14 +41,14 @@ const MIME_TYPES = {
 let portfolioData = {
     siteSettings: {
         siteName: 'Gridx Portfolio',
-        logo: './assets/images/logo.svg',
+        logo: '/assets/images/logo.svg',
         copyright: 'All rights reserved by WordPress River'
     },
     hero: {
         name: 'David Henderson',
         title: 'A WEB DESIGNER',
         description: 'I am a Web Designer based in san francisco.',
-        image: './assets/images/me.png',
+        image: '/assets/images/me.png',
         username: '@davidhenderson'
     },
     about: {
@@ -73,12 +73,12 @@ let portfolioData = {
         { id: 4, title: 'Development', icon: 'iconoir-dev-mode-phone', description: 'Sit amet luctussd fav venenatis, lectus magna fringilla inis urna.' }
     ],
     projects: [
-        { id: 1, title: 'Dynamic', category: 'WEB DESIGNING', image: './assets/images/project1.jpeg', link: './work-details.html' },
-        { id: 2, title: 'Diesel H1', category: 'PHOTOGRAPHY', image: './assets/images/project2.jpeg', link: './work-details.html' },
-        { id: 3, title: 'Seven Studio', category: 'MOBILE DESIGNING', image: './assets/images/project3.jpeg', link: './work-details.html' },
-        { id: 4, title: 'Raven Studio', category: 'Branding', image: './assets/images/project4.jpeg', link: './work-details.html' },
-        { id: 5, title: 'Submarine', category: 'MOBILE DESIGNING', image: './assets/images/project5.jpeg', link: './work-details.html' },
-        { id: 6, title: 'Hydra Merc', category: 'WEB DESIGNING', image: './assets/images/project6.jpeg', link: './work-details.html' }
+        { id: 1, title: 'Dynamic', category: 'WEB DESIGNING', image: '/assets/images/project1.jpeg', link: '/work-details.html' },
+        { id: 2, title: 'Diesel H1', category: 'PHOTOGRAPHY', image: '/assets/images/project2.jpeg', link: '/work-details.html' },
+        { id: 3, title: 'Seven Studio', category: 'MOBILE DESIGNING', image: '/assets/images/project3.jpeg', link: '/work-details.html' },
+        { id: 4, title: 'Raven Studio', category: 'Branding', image: '/assets/images/project4.jpeg', link: '/work-details.html' },
+        { id: 5, title: 'Submarine', category: 'MOBILE DESIGNING', image: '/assets/images/project5.jpeg', link: '/work-details.html' },
+        { id: 6, title: 'Hydra Merc', category: 'WEB DESIGNING', image: '/assets/images/project6.jpeg', link: '/work-details.html' }
     ],
     experience: [
         { id: 1, period: '2007 - 2017', title: 'Framer Designer & Developer', company: 'Bluebase Designs', description: 'Sit amet luctussd fav venenatis.' },
@@ -106,16 +106,16 @@ let portfolioData = {
         address: '22 Baker Street, Texas\nUnited States\nW1U 3BW'
     },
     blog: [
-        { id: 1, title: 'Consulted admitting is power acuteness.', date: '25 March 2022', comments: 4, shares: 7, image: './assets/images/blog1.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' },
-        { id: 2, title: 'Unsatiable entreaties may collecting Power.', date: '25 March 2022', comments: 4, shares: 7, image: './assets/images/blog2.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' },
-        { id: 3, title: 'Discovery incommode earnestly he commanded', date: '25 March 2022', comments: 4, shares: 7, image: './assets/images/blog1.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' }
+        { id: 1, title: 'Consulted admitting is power acuteness.', date: '25 March 2022', comments: 4, shares: 7, image: '/assets/images/blog1.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' },
+        { id: 2, title: 'Unsatiable entreaties may collecting Power.', date: '25 March 2022', comments: 4, shares: 7, image: '/assets/images/blog2.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' },
+        { id: 3, title: 'Discovery incommode earnestly he commanded', date: '25 March 2022', comments: 4, shares: 7, image: '/assets/images/blog1.jpeg', excerpt: 'Sit amet luctussd fav venenatis.' }
     ]
 };
 
 // Auth tokens
 let authTokens = new Set();
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'portfolio2024';
+const ADMIN_PASSWORD = 'admin12345';
 
 function generateToken() {
     return 'token_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
@@ -302,6 +302,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`===================================`);
     console.log(`  Admin Credentials:`);
     console.log(`  Username: admin`);
-    console.log(`  Password: portfolio2024`);
+    console.log(`  Password: admin12345`);
     console.log(`===================================\\n`);
 });

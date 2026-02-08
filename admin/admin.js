@@ -4,7 +4,7 @@
  */
 
 // Configuration
-const API_BASE = '../api'; // For local development, change to your Cloudflare Worker URL in production
+const API_BASE = ''; // Same-origin API base for Cloudflare Pages/Workers
 
 // State
 let portfolioData = null;
@@ -126,23 +126,17 @@ async function handleLogin(e) {
 
         const data = await response.json();
 
-        if (data.success && data.token) {
-            localStorage.setItem('admin_token', data.token);
-            await showDashboard();
-            showToast('ورود موفقیت‌آمیز', 'success');
-        } else {
-            loginError.textContent = 'نام کاربری یا رمز عبور اشتباه است';
+        if (!response.ok || !data.success || !data.token) {
+            loginError.textContent = data.message || 'نام کاربری یا رمز عبور اشتباه است';
+            return;
         }
+
+        localStorage.setItem('admin_token', data.token);
+        await showDashboard();
+        showToast('ورود موفقیت‌آمیز', 'success');
     } catch (error) {
         console.error('Login error:', error);
-        // For development without API, use hardcoded credentials
-        if (username === 'admin' && password === 'portfolio2024') {
-            localStorage.setItem('admin_token', 'dev_token_' + Date.now());
-            await showDashboard();
-            showToast('ورود موفقیت‌آمیز (حالت توسعه)', 'success');
-        } else {
-            loginError.textContent = 'خطا در برقراری ارتباط با سرور';
-        }
+        loginError.textContent = 'خطا در برقراری ارتباط با سرور';
     }
 }
 
@@ -177,8 +171,7 @@ async function verifyToken(token) {
         const data = await response.json();
         return data.success && data.valid;
     } catch (error) {
-        // For development, accept any token
-        return token.startsWith('dev_token_');
+        return false;
     }
 }
 
@@ -223,8 +216,8 @@ async function loadPortfolioData() {
             portfolioData = data.data;
         }
     } catch (error) {
-        console.log('API error, using default data');
-        // Use default data for development
+        console.error('Portfolio load error:', error);
+        showToast('خطا در دریافت اطلاعات. داده‌های پیش‌فرض نمایش داده می‌شود.', 'error');
         portfolioData = getDefaultData();
     }
 }
@@ -249,17 +242,16 @@ async function handleSave() {
 
         const data = await response.json();
 
-        if (data.success) {
-            showToast('تغییرات با موفقیت ذخیره شد', 'success');
-            isDirty = false;
-        } else {
+        if (!response.ok || !data.success) {
             showToast('خطا در ذخیره تغییرات', 'error');
+            return;
         }
-    } catch (error) {
-        // For development, save to localStorage
-        localStorage.setItem('portfolioData', JSON.stringify(portfolioData));
-        showToast('تغییرات ذخیره شد (حالت محلی)', 'success');
+
+        showToast('تغییرات با موفقیت ذخیره شد', 'success');
         isDirty = false;
+    } catch (error) {
+        console.error('Save error:', error);
+        showToast('خطا در برقراری ارتباط با سرور', 'error');
     }
 }
 
@@ -341,7 +333,7 @@ function renderHeroForm() {
             <div class="form-group">
                 <label>آدرس تصویر</label>
                 <input type="text" data-field="hero.image" value="${escapeHtml(hero.image || '')}" data-testid="hero-image">
-                ${hero.image ? `<div class="image-preview"><img src="${hero.image}" alt="Preview"></div>` : ''}
+                ${hero.image ? `<div class="image-preview" data-testid="hero-image-preview"><img src="${hero.image}" alt="Preview" data-testid="hero-image-preview-img"></div>` : ''}
             </div>
         </div>
     `;
@@ -375,7 +367,7 @@ function renderStatsForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">آمار ${index + 1}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="stats" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="stats" data-index="${index}" data-testid="stats-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -383,21 +375,21 @@ function renderStatsForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>مقدار</label>
-                                <input type="text" data-field="stats.${index}.value" value="${escapeHtml(stat.value || '')}">
+                                <input type="text" data-field="stats.${index}.value" value="${escapeHtml(stat.value || '')}" data-testid="stats-${index}-value">
                             </div>
                             <div class="form-group">
                                 <label>برچسب</label>
-                                <input type="text" data-field="stats.${index}.label" value="${escapeHtml(stat.label || '')}">
+                                <input type="text" data-field="stats.${index}.label" value="${escapeHtml(stat.label || '')}" data-testid="stats-${index}-label">
                             </div>
                             <div class="form-group">
                                 <label>زیربرچسب</label>
-                                <input type="text" data-field="stats.${index}.sublabel" value="${escapeHtml(stat.sublabel || '')}">
+                                <input type="text" data-field="stats.${index}.sublabel" value="${escapeHtml(stat.sublabel || '')}" data-testid="stats-${index}-sublabel">
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="stats">
+            <button class="add-item-btn" data-action="add" data-section="stats" data-testid="stats-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن آمار جدید
             </button>
@@ -416,7 +408,7 @@ function renderServicesForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(service.title || 'خدمت جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="services" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="services" data-index="${index}" data-testid="services-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -424,21 +416,21 @@ function renderServicesForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>عنوان</label>
-                                <input type="text" data-field="services.${index}.title" value="${escapeHtml(service.title || '')}">
+                                <input type="text" data-field="services.${index}.title" value="${escapeHtml(service.title || '')}" data-testid="services-${index}-title">
                             </div>
                             <div class="form-group">
                                 <label>آیکون (کلاس iconoir)</label>
-                                <input type="text" data-field="services.${index}.icon" value="${escapeHtml(service.icon || '')}">
+                                <input type="text" data-field="services.${index}.icon" value="${escapeHtml(service.icon || '')}" data-testid="services-${index}-icon">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>توضیحات</label>
-                            <textarea data-field="services.${index}.description" rows="3">${escapeHtml(service.description || '')}</textarea>
+                            <textarea data-field="services.${index}.description" rows="3" data-testid="services-${index}-description">${escapeHtml(service.description || '')}</textarea>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="services">
+            <button class="add-item-btn" data-action="add" data-section="services" data-testid="services-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن خدمت جدید
             </button>
@@ -457,7 +449,7 @@ function renderProjectsForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(project.title || 'پروژه جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="projects" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="projects" data-index="${index}" data-testid="projects-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -465,27 +457,27 @@ function renderProjectsForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>عنوان</label>
-                                <input type="text" data-field="projects.${index}.title" value="${escapeHtml(project.title || '')}">
+                                <input type="text" data-field="projects.${index}.title" value="${escapeHtml(project.title || '')}" data-testid="projects-${index}-title">
                             </div>
                             <div class="form-group">
                                 <label>دسته‌بندی</label>
-                                <input type="text" data-field="projects.${index}.category" value="${escapeHtml(project.category || '')}">
+                                <input type="text" data-field="projects.${index}.category" value="${escapeHtml(project.category || '')}" data-testid="projects-${index}-category">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>تصویر</label>
-                                <input type="text" data-field="projects.${index}.image" value="${escapeHtml(project.image || '')}">
+                                <input type="text" data-field="projects.${index}.image" value="${escapeHtml(project.image || '')}" data-testid="projects-${index}-image">
                             </div>
                             <div class="form-group">
                                 <label>لینک</label>
-                                <input type="text" data-field="projects.${index}.link" value="${escapeHtml(project.link || '')}">
+                                <input type="text" data-field="projects.${index}.link" value="${escapeHtml(project.link || '')}" data-testid="projects-${index}-link">
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="projects">
+            <button class="add-item-btn" data-action="add" data-section="projects" data-testid="projects-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن پروژه جدید
             </button>
@@ -504,7 +496,7 @@ function renderExperienceForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(exp.title || 'تجربه جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="experience" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="experience" data-index="${index}" data-testid="experience-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -512,25 +504,25 @@ function renderExperienceForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>بازه زمانی</label>
-                                <input type="text" data-field="experience.${index}.period" value="${escapeHtml(exp.period || '')}">
+                                <input type="text" data-field="experience.${index}.period" value="${escapeHtml(exp.period || '')}" data-testid="experience-${index}-period">
                             </div>
                             <div class="form-group">
                                 <label>عنوان شغلی</label>
-                                <input type="text" data-field="experience.${index}.title" value="${escapeHtml(exp.title || '')}">
+                                <input type="text" data-field="experience.${index}.title" value="${escapeHtml(exp.title || '')}" data-testid="experience-${index}-title">
                             </div>
                             <div class="form-group">
                                 <label>شرکت</label>
-                                <input type="text" data-field="experience.${index}.company" value="${escapeHtml(exp.company || '')}">
+                                <input type="text" data-field="experience.${index}.company" value="${escapeHtml(exp.company || '')}" data-testid="experience-${index}-company">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>توضیحات</label>
-                            <textarea data-field="experience.${index}.description" rows="3">${escapeHtml(exp.description || '')}</textarea>
+                            <textarea data-field="experience.${index}.description" rows="3" data-testid="experience-${index}-description">${escapeHtml(exp.description || '')}</textarea>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="experience">
+            <button class="add-item-btn" data-action="add" data-section="experience" data-testid="experience-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن تجربه جدید
             </button>
@@ -549,7 +541,7 @@ function renderEducationForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(edu.title || 'تحصیل جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="education" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="education" data-index="${index}" data-testid="education-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -557,25 +549,25 @@ function renderEducationForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>بازه زمانی</label>
-                                <input type="text" data-field="education.${index}.period" value="${escapeHtml(edu.period || '')}">
+                                <input type="text" data-field="education.${index}.period" value="${escapeHtml(edu.period || '')}" data-testid="education-${index}-period">
                             </div>
                             <div class="form-group">
                                 <label>مدرک</label>
-                                <input type="text" data-field="education.${index}.title" value="${escapeHtml(edu.title || '')}">
+                                <input type="text" data-field="education.${index}.title" value="${escapeHtml(edu.title || '')}" data-testid="education-${index}-title">
                             </div>
                             <div class="form-group">
                                 <label>دانشگاه</label>
-                                <input type="text" data-field="education.${index}.institution" value="${escapeHtml(edu.institution || '')}">
+                                <input type="text" data-field="education.${index}.institution" value="${escapeHtml(edu.institution || '')}" data-testid="education-${index}-institution">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>توضیحات</label>
-                            <textarea data-field="education.${index}.description" rows="3">${escapeHtml(edu.description || '')}</textarea>
+                            <textarea data-field="education.${index}.description" rows="3" data-testid="education-${index}-description">${escapeHtml(edu.description || '')}</textarea>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="education">
+            <button class="add-item-btn" data-action="add" data-section="education" data-testid="education-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن تحصیل جدید
             </button>
@@ -594,7 +586,7 @@ function renderSkillsForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(skill.name || 'مهارت جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="skills" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="skills" data-index="${index}" data-testid="skills-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -602,21 +594,21 @@ function renderSkillsForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>نام مهارت</label>
-                                <input type="text" data-field="skills.${index}.name" value="${escapeHtml(skill.name || '')}">
+                                <input type="text" data-field="skills.${index}.name" value="${escapeHtml(skill.name || '')}" data-testid="skills-${index}-name">
                             </div>
                             <div class="form-group">
                                 <label>درصد</label>
-                                <input type="text" data-field="skills.${index}.percent" value="${escapeHtml(skill.percent || '')}">
+                                <input type="text" data-field="skills.${index}.percent" value="${escapeHtml(skill.percent || '')}" data-testid="skills-${index}-percent">
                             </div>
                             <div class="form-group">
                                 <label>توضیح</label>
-                                <input type="text" data-field="skills.${index}.description" value="${escapeHtml(skill.description || '')}">
+                                <input type="text" data-field="skills.${index}.description" value="${escapeHtml(skill.description || '')}" data-testid="skills-${index}-description">
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="skills">
+            <button class="add-item-btn" data-action="add" data-section="skills" data-testid="skills-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن مهارت جدید
             </button>
@@ -635,7 +627,7 @@ function renderAwardsForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(award.name || 'جایزه جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="awards" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="awards" data-index="${index}" data-testid="awards-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -643,21 +635,21 @@ function renderAwardsForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>تاریخ</label>
-                                <input type="text" data-field="awards.${index}.date" value="${escapeHtml(award.date || '')}">
+                                <input type="text" data-field="awards.${index}.date" value="${escapeHtml(award.date || '')}" data-testid="awards-${index}-date">
                             </div>
                             <div class="form-group">
                                 <label>نام جایزه</label>
-                                <input type="text" data-field="awards.${index}.name" value="${escapeHtml(award.name || '')}">
+                                <input type="text" data-field="awards.${index}.name" value="${escapeHtml(award.name || '')}" data-testid="awards-${index}-name">
                             </div>
                             <div class="form-group">
                                 <label>توضیح</label>
-                                <input type="text" data-field="awards.${index}.description" value="${escapeHtml(award.description || '')}">
+                                <input type="text" data-field="awards.${index}.description" value="${escapeHtml(award.description || '')}" data-testid="awards-${index}-description">
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="awards">
+            <button class="add-item-btn" data-action="add" data-section="awards" data-testid="awards-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن جایزه جدید
             </button>
@@ -699,7 +691,7 @@ function renderSocialLinksForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(link.platform || 'شبکه جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="socialLinks" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="socialLinks" data-index="${index}" data-testid="social-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -707,21 +699,21 @@ function renderSocialLinksForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>پلتفرم</label>
-                                <input type="text" data-field="socialLinks.${index}.platform" value="${escapeHtml(link.platform || '')}">
+                                <input type="text" data-field="socialLinks.${index}.platform" value="${escapeHtml(link.platform || '')}" data-testid="social-${index}-platform">
                             </div>
                             <div class="form-group">
                                 <label>آیکون (کلاس iconoir)</label>
-                                <input type="text" data-field="socialLinks.${index}.icon" value="${escapeHtml(link.icon || '')}">
+                                <input type="text" data-field="socialLinks.${index}.icon" value="${escapeHtml(link.icon || '')}" data-testid="social-${index}-icon">
                             </div>
                             <div class="form-group">
                                 <label>لینک</label>
-                                <input type="text" data-field="socialLinks.${index}.url" value="${escapeHtml(link.url || '')}">
+                                <input type="text" data-field="socialLinks.${index}.url" value="${escapeHtml(link.url || '')}" data-testid="social-${index}-url">
                             </div>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="socialLinks">
+            <button class="add-item-btn" data-action="add" data-section="socialLinks" data-testid="social-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن شبکه جدید
             </button>
@@ -740,7 +732,7 @@ function renderBlogForm() {
                         <div class="list-item-header">
                             <span class="list-item-title">${escapeHtml(post.title || 'مقاله جدید')}</span>
                             <div class="list-item-actions">
-                                <button class="btn-icon delete" data-action="delete" data-section="blog" data-index="${index}">
+                                <button class="btn-icon delete" data-action="delete" data-section="blog" data-index="${index}" data-testid="blog-${index}-delete">
                                     <i class="iconoir-trash"></i>
                                 </button>
                             </div>
@@ -748,31 +740,31 @@ function renderBlogForm() {
                         <div class="form-row">
                             <div class="form-group">
                                 <label>عنوان</label>
-                                <input type="text" data-field="blog.${index}.title" value="${escapeHtml(post.title || '')}">
+                                <input type="text" data-field="blog.${index}.title" value="${escapeHtml(post.title || '')}" data-testid="blog-${index}-title">
                             </div>
                             <div class="form-group">
                                 <label>تاریخ</label>
-                                <input type="text" data-field="blog.${index}.date" value="${escapeHtml(post.date || '')}">
+                                <input type="text" data-field="blog.${index}.date" value="${escapeHtml(post.date || '')}" data-testid="blog-${index}-date">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>تصویر</label>
-                                <input type="text" data-field="blog.${index}.image" value="${escapeHtml(post.image || '')}">
+                                <input type="text" data-field="blog.${index}.image" value="${escapeHtml(post.image || '')}" data-testid="blog-${index}-image">
                             </div>
                             <div class="form-group">
                                 <label>تعداد کامنت</label>
-                                <input type="number" data-field="blog.${index}.comments" value="${post.comments || 0}">
+                                <input type="number" data-field="blog.${index}.comments" value="${post.comments || 0}" data-testid="blog-${index}-comments">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>خلاصه</label>
-                            <textarea data-field="blog.${index}.excerpt" rows="3">${escapeHtml(post.excerpt || '')}</textarea>
+                            <textarea data-field="blog.${index}.excerpt" rows="3" data-testid="blog-${index}-excerpt">${escapeHtml(post.excerpt || '')}</textarea>
                         </div>
                     </div>
                 `).join('')}
             </div>
-            <button class="add-item-btn" data-action="add" data-section="blog">
+            <button class="add-item-btn" data-action="add" data-section="blog" data-testid="blog-add-button">
                 <i class="iconoir-plus"></i>
                 افزودن مقاله جدید
             </button>
@@ -792,7 +784,7 @@ function renderSiteSettingsForm() {
             <div class="form-group">
                 <label>آدرس لوگو</label>
                 <input type="text" data-field="siteSettings.logo" value="${escapeHtml(settings.logo || '')}" data-testid="site-logo">
-                ${settings.logo ? `<div class="image-preview"><img src="${settings.logo}" alt="Logo Preview"></div>` : ''}
+                ${settings.logo ? `<div class="image-preview" data-testid="site-logo-preview"><img src="${settings.logo}" alt="Logo Preview" data-testid="site-logo-preview-img"></div>` : ''}
             </div>
             <div class="form-group">
                 <label>متن کپی‌رایت</label>
@@ -911,14 +903,14 @@ function getDefaultData() {
     return {
         siteSettings: {
             siteName: 'Gridx Portfolio',
-            logo: '../assets/images/logo.svg',
+            logo: '/assets/images/logo.svg',
             copyright: 'All rights reserved by WordPress River'
         },
         hero: {
             name: 'David Henderson',
             title: 'A WEB DESIGNER',
             description: 'I am a Web Designer based in san francisco.',
-            image: '../assets/images/me.png',
+            image: '/assets/images/me.png',
             username: '@davidhenderson'
         },
         about: {
@@ -939,7 +931,7 @@ function getDefaultData() {
             { id: 2, title: 'Web Designing', icon: 'iconoir-design-pencil', description: 'Modern web design solutions.' }
         ],
         projects: [
-            { id: 1, title: 'Dynamic', category: 'WEB DESIGNING', image: '../assets/images/project1.jpeg', link: '#' }
+            { id: 1, title: 'Dynamic', category: 'WEB DESIGNING', image: '/assets/images/project1.jpeg', link: '#' }
         ],
         experience: [
             { id: 1, period: '2017 - 2023', title: 'Front-End Developer', company: 'Larsen & Toubro', description: '' }
@@ -959,7 +951,7 @@ function getDefaultData() {
             address: '22 Baker Street, Texas\nUnited States'
         },
         blog: [
-            { id: 1, title: 'Consulted admitting is power acuteness.', date: '25 March 2022', image: '../assets/images/blog1.jpeg', excerpt: '', content: '' }
+            { id: 1, title: 'Consulted admitting is power acuteness.', date: '25 March 2022', image: '/assets/images/blog1.jpeg', excerpt: '', content: '' }
         ]
     };
 }

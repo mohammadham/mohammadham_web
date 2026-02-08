@@ -20,7 +20,7 @@
 <body>
     <div id="app">
         <!-- Login Page -->
-        <div id="login-page" class="page active">
+        <div id="login-page" class="page active" data-testid="admin-login-page">
             <div class="login-container">
                 <div class="login-box shadow-box">
                     <div class="login-header">
@@ -28,7 +28,7 @@
                         <h1>پنل مدیریت</h1>
                         <p>برای ورود اطلاعات خود را وارد کنید</p>
                     </div>
-                    <form id="login-form">
+                    <form id="login-form" data-testid="admin-login-form">
                         <div class="input-group">
                             <label for="username">نام کاربری</label>
                             <input type="text" id="username" name="username" required data-testid="admin-username">
@@ -37,7 +37,7 @@
                             <label for="password">رمز عبور</label>
                             <input type="password" id="password" name="password" required data-testid="admin-password">
                         </div>
-                        <div id="login-error" class="error-message"></div>
+                        <div id="login-error" class="error-message" data-testid="admin-login-error"></div>
                         <button type="submit" class="theme-btn" data-testid="admin-login-btn">ورود</button>
                     </form>
                 </div>
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Dashboard -->
-        <div id="dashboard" class="page">
+        <div id="dashboard" class="page" data-testid="admin-dashboard">
             <!-- Sidebar -->
             <aside class="sidebar">
                 <div class="sidebar-header">
@@ -54,55 +54,55 @@
                 </div>
                 <nav class="sidebar-nav">
                     <ul>
-                        <li class="active" data-section="hero">
+                        <li class="active" data-section="hero" data-testid="admin-nav-hero">
                             <i class="iconoir-user"></i>
                             <span>اطلاعات شخصی</span>
                         </li>
-                        <li data-section="about">
+                        <li data-section="about" data-testid="admin-nav-about">
                             <i class="iconoir-page"></i>
                             <span>درباره من</span>
                         </li>
-                        <li data-section="stats">
+                        <li data-section="stats" data-testid="admin-nav-stats">
                             <i class="iconoir-graph-up"></i>
                             <span>آمار</span>
                         </li>
-                        <li data-section="services">
+                        <li data-section="services" data-testid="admin-nav-services">
                             <i class="iconoir-grid-add"></i>
                             <span>خدمات</span>
                         </li>
-                        <li data-section="projects">
+                        <li data-section="projects" data-testid="admin-nav-projects">
                             <i class="iconoir-folder"></i>
                             <span>پروژه‌ها</span>
                         </li>
-                        <li data-section="experience">
+                        <li data-section="experience" data-testid="admin-nav-experience">
                             <i class="iconoir-briefcase"></i>
                             <span>تجربیات</span>
                         </li>
-                        <li data-section="education">
+                        <li data-section="education" data-testid="admin-nav-education">
                             <i class="iconoir-graduation-cap"></i>
                             <span>تحصیلات</span>
                         </li>
-                        <li data-section="skills">
+                        <li data-section="skills" data-testid="admin-nav-skills">
                             <i class="iconoir-code"></i>
                             <span>مهارت‌ها</span>
                         </li>
-                        <li data-section="awards">
+                        <li data-section="awards" data-testid="admin-nav-awards">
                             <i class="iconoir-medal"></i>
                             <span>جوایز</span>
                         </li>
-                        <li data-section="contact">
+                        <li data-section="contact" data-testid="admin-nav-contact">
                             <i class="iconoir-phone"></i>
                             <span>تماس</span>
                         </li>
-                        <li data-section="socialLinks">
+                        <li data-section="socialLinks" data-testid="admin-nav-social">
                             <i class="iconoir-share-ios"></i>
                             <span>شبکه‌های اجتماعی</span>
                         </li>
-                        <li data-section="blog">
+                        <li data-section="blog" data-testid="admin-nav-blog">
                             <i class="iconoir-journal-page"></i>
                             <span>بلاگ</span>
                         </li>
-                        <li data-section="siteSettings">
+                        <li data-section="siteSettings" data-testid="admin-nav-site-settings">
                             <i class="iconoir-settings"></i>
                             <span>تنظیمات سایت</span>
                         </li>
@@ -113,7 +113,7 @@
                         <i class="iconoir-log-out"></i>
                         <span>خروج</span>
                     </button>
-                    <a href="../index.html" class="view-site-btn" target="_blank">
+                    <a href="../index.html" class="view-site-btn" target="_blank" data-testid="admin-view-site-link">
                         <i class="iconoir-eye-empty"></i>
                         <span>مشاهده سایت</span>
                     </a>
@@ -123,10 +123,10 @@
             <!-- Main Content -->
             <main class="main-content">
                 <header class="content-header">
-                    <button class="menu-toggle" id="menu-toggle">
+                    <button class="menu-toggle" id="menu-toggle" data-testid="admin-menu-toggle">
                         <i class="iconoir-menu"></i>
                     </button>
-                    <h1 id="section-title">اطلاعات شخصی</h1>
+                    <h1 id="section-title" data-testid="admin-section-title">اطلاعات شخصی</h1>
                     <div class="header-actions">
                         <button id="save-btn" class="theme-btn save-btn" data-testid="admin-save-btn">
                             <i class="iconoir-save-floppy-disk"></i>
@@ -135,7 +135,7 @@
                     </div>
                 </header>
 
-                <div class="content-body" id="content-body">
+                <div class="content-body" id="content-body" data-testid="admin-content-body">
                     <!-- Dynamic content will be loaded here -->
                 </div>
             </main>
@@ -143,8 +143,8 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast">
-        <span id="toast-message"></span>
+    <div id="toast" class="toast" data-testid="admin-toast">
+        <span id="toast-message" data-testid="admin-toast-message"></span>
     </div>
 
     <script src="../assets/js/jquery-3.6.4.js"></script>

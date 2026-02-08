@@ -68,5 +68,5 @@ server.listen(PORT, () => {
     console.log('  DELETE /api/admin/:section/:id - Delete item');
     console.log('\nDefault Admin Credentials:');
     console.log('  Username: admin');
-    console.log('  Password: portfolio2024');
+    console.log('  Password: admin12345');
 });
