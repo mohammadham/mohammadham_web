@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت پرتفلیو</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Page -->
+        <div id="login-page" class="page active">
+            <div class="login-container">
+                <div class="login-box shadow-box">
+                    <div class="login-header">
+                        <img src="../assets/images/logo.svg" alt="Logo" class="logo">
+                        <h1>پنل مدیریت</h1>
+                        <p>برای ورود اطلاعات خود را وارد کنید</p>
+                    </div>
+                    <form id="login-form">
+                        <div class="input-group">
+                            <label for="username">نام کاربری</label>
+                            <input type="text" id="username" name="username" required data-testid="admin-username">
+                        </div>
+                        <div class="input-group">
+                            <label for="password">رمز عبور</label>
+                            <input type="password" id="password" name="password" required data-testid="admin-password">
+                        </div>
+                        <div id="login-error" class="error-message"></div>
+                        <button type="submit" class="theme-btn" data-testid="admin-login-btn">ورود</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="page">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="../assets/images/logo.svg" alt="Logo" class="logo">
+                    <h2>پنل مدیریت</h2>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="active" data-section="hero">
+                            <i class="iconoir-user"></i>
+                            <span>اطلاعات شخصی</span>
+                        </li>
+                        <li data-section="about">
+                            <i class="iconoir-page"></i>
+                            <span>درباره من</span>
+                        </li>
+                        <li data-section="stats">
+                            <i class="iconoir-graph-up"></i>
+                            <span>آمار</span>
+                        </li>
+                        <li data-section="services">
+                            <i class="iconoir-grid-add"></i>
+                            <span>خدمات</span>
+                        </li>
+                        <li data-section="projects">
+                            <i class="iconoir-folder"></i>
+                            <span>پروژه‌ها</span>
+                        </li>
+                        <li data-section="experience">
+                            <i class="iconoir-briefcase"></i>
+                            <span>تجربیات</span>
+                        </li>
+                        <li data-section="education">
+                            <i class="iconoir-graduation-cap"></i>
+                            <span>تحصیلات</span>
+                        </li>
+                        <li data-section="skills">
+                            <i class="iconoir-code"></i>
+                            <span>مهارت‌ها</span>
+                        </li>
+                        <li data-section="awards">
+                            <i class="iconoir-medal"></i>
+                            <span>جوایز</span>
+                        </li>
+                        <li data-section="contact">
+                            <i class="iconoir-phone"></i>
+                            <span>تماس</span>
+                        </li>
+                        <li data-section="socialLinks">
+                            <i class="iconoir-share-ios"></i>
+                            <span>شبکه‌های اجتماعی</span>
+                        </li>
+                        <li data-section="blog">
+                            <i class="iconoir-journal-page"></i>
+                            <span>بلاگ</span>
+                        </li>
+                        <li data-section="siteSettings">
+                            <i class="iconoir-settings"></i>
+                            <span>تنظیمات سایت</span>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="sidebar-footer">
+                    <button id="logout-btn" class="logout-btn" data-testid="admin-logout-btn">
+                        <i class="iconoir-log-out"></i>
+                        <span>خروج</span>
+                    </button>
+                    <a href="../index.html" class="view-site-btn" target="_blank">
+                        <i class="iconoir-eye-empty"></i>
+                        <span>مشاهده سایت</span>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="content-header">
+                    <button class="menu-toggle" id="menu-toggle">
+                        <i class="iconoir-menu"></i>
+                    </button>
+                    <h1 id="section-title">اطلاعات شخصی</h1>
+                    <div class="header-actions">
+                        <button id="save-btn" class="theme-btn save-btn" data-testid="admin-save-btn">
+                            <i class="iconoir-save-floppy-disk"></i>
+                            <span>ذخیره تغییرات</span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="content-body" id="content-body">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="../assets/js/jquery-3.6.4.js"></script>
+    <script src="./admin.js"></script>
+</body>
+</html>
