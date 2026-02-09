@@ -68,8 +68,8 @@
                         <h1 class="section-heading" data-aos="fade-up"><img src="./assets/images/star-2.png" alt="Star"> Self-summary <img src="./assets/images/star-2.png" alt="Star"></h1>
                         <div class="about-details-inner shadow-box">
                             <img src="./assets/images/icon2.png" alt="Star">
-                            <h1>David Henderson</h1>
-                            <p>I am a San francisco-based product designer with a focus on web design, illustration, a visual development. I have a diverse range of experience having worked across various fields and industries.</p>
+                            <h1 data-bind="hero.name">David Henderson</h1>
+                            <p data-bind="about.summary">I am a San francisco-based product designer with a focus on web design, illustration, a visual development. I have a diverse range of experience having worked across various fields and industries.</p>
                         </div>
 
                     </div>
@@ -81,16 +81,11 @@
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
                             <h3>EXPERIENCE</h3>
 
-                            <ul>
-                                <li>
-                                    <p class="date">2007 - 2017</p>
-                                    <h2>Framer Designer & Developer</h2>
-                                    <p class="type">Bluebase Designs</p>
-                                </li>
-                                <li>
-                                    <p class="date">2017 - 2023</p>
-                                    <h2>Front-End Developer</h2>
-                                    <p class="type">Larsen & Toubro</p>
+                            <ul data-bind-list="experience">
+                                <li data-template>
+                                    <p class="date" data-bind-item="period">2007 - 2017</p>
+                                    <h2 data-bind-item="title">Framer Designer & Developer</h2>
+                                    <p class="type" data-bind-item="company">Bluebase Designs</p>
                                 </li>
                             </ul>
                         </div>
@@ -100,16 +95,11 @@
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
                             <h3>EDUCATION</h3>
 
-                            <ul>
-                                <li>
-                                    <p class="date">2004 - 2007</p>
-                                    <h2>Bachelor Degree in Psychology</h2>
-                                    <p class="type">University of California</p>
-                                </li>
-                                <li>
-                                    <p class="date">2007 - 2009</p>
-                                    <h2>Master Degree in Designing</h2>
-                                    <p class="type">University of Texas</p>
+                            <ul data-bind-list="education">
+                                <li data-template>
+                                    <p class="date" data-bind-item="period">2004 - 2007</p>
+                                    <h2 data-bind-item="title">Bachelor Degree in Psychology</h2>
+                                    <p class="type" data-bind-item="institution">University of California</p>
                                 </li>
                             </ul>
                         </div>
@@ -210,6 +200,7 @@
     <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/aos.js"></script>
     <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/data-loader.js"></script>
     <script src="./assets/js/spa.js"></script>
 </body>
 </html>

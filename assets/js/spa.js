@@ -183,6 +183,11 @@
                 window.initPortfolioUI();
             }
 
+            // Bind Data to new content
+            if (window.PortfolioData && typeof window.PortfolioData.bind === 'function') {
+                window.PortfolioData.bind();
+            }
+
             applyTestIds(document);
             updateActiveNav();
             await ensureContactForm();

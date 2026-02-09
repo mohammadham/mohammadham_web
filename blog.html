@@ -67,43 +67,22 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-8">
-                        <div class="blog-items">
-                            <div class="blog-item" data-aos="zoom-in">
+                        <div class="blog-items" data-bind-list="blog">
+                            <div class="blog-item" data-aos="zoom-in" data-template>
                                 <div class="img-box">
-                                    <img src="./assets/images/blog1.jpeg" alt="Blog">
+                                    <img src="./assets/images/blog1.jpeg" alt="Blog" data-bind-item="image">
                                 </div>
                                 <div class="content">
-                                    <span class="meta">25 March 2022 - Comments (4) - Share (7)</span>
-                                    <h1><a href="blog-details.html">Consulted admitting is power acuteness.</a></h1>
-                                    <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.</p>
+                                    <span class="meta">
+                                        <span data-bind-item="date">25 March 2022</span> - 
+                                        Comments (<span data-bind-item="comments">4</span>) - 
+                                        Share (<span data-bind-item="shares">7</span>)
+                                    </span>
+                                    <h1><a href="blog-details.html" data-bind-item="title">Consulted admitting is power acuteness.</a></h1>
+                                    <p data-bind-item="excerpt">Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.</p>
                                     <a href="blog-details.html" class="theme-btn">Read More</a>
                                 </div>
                             </div>
-
-                            <div class="blog-item" data-aos="zoom-in">
-                                <div class="img-box">
-                                    <img src="./assets/images/blog2.jpeg" alt="Blog">
-                                </div>
-                                <div class="content">
-                                    <span class="meta">25 March 2022 - Comments (4) - Share (7)</span>
-                                    <h1><a href="blog-details.html">Unsatiable entreaties may collecting Power.</a></h1>
-                                    <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.</p>
-                                    <a href="blog-details.html" class="theme-btn">Read More</a>
-                                </div>
-                            </div>
-                            
-                            <div class="blog-item" data-aos="zoom-in">
-                                <div class="img-box">
-                                    <img src="./assets/images/blog1.jpeg" alt="Blog">
-                                </div>
-                                <div class="content">
-                                    <span class="meta">25 March 2022 - Comments (4) - Share (7)</span>
-                                    <h1><a href="blog-details.html">Discovery incommode earnestly he commanded</a></h1>
-                                    <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.</p>
-                                    <a href="blog-details.html" class="theme-btn">Read More</a>
-                                </div>
-                            </div>
-                            
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -203,6 +182,7 @@
     <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/aos.js"></script>
     <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/data-loader.js"></script>
     <script src="./assets/js/spa.js"></script>
 </body>
 </html>

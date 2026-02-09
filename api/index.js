@@ -44,12 +44,34 @@ const defaultData = {
         { id: '4', title: 'Development', icon: 'iconoir-dev-mode-phone', description: 'Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.' }
     ],
     projects: [
-        { id: '1', title: 'Dynamic', category: 'WEB DESIGNING', image: '/assets/images/project1.jpeg', link: '/work-details.html' },
-        { id: '2', title: 'Diesel H1', category: 'PHOTOGRAPHY', image: '/assets/images/project2.jpeg', link: '/work-details.html' },
-        { id: '3', title: 'Seven Studio', category: 'MOBILE DESIGNING', image: '/assets/images/project3.jpeg', link: '/work-details.html' },
-        { id: '4', title: 'Raven Studio', category: 'Branding', image: '/assets/images/project4.jpeg', link: '/work-details.html' },
-        { id: '5', title: 'Submarine', category: 'MOBILE DESIGNING', image: '/assets/images/project5.jpeg', link: '/work-details.html' },
-        { id: '6', title: 'Hydra Merc', category: 'WEB DESIGNING', image: '/assets/images/project6.jpeg', link: '/work-details.html' }
+        { 
+            id: '1', 
+            title: 'Dynamic', 
+            category: 'WEB DESIGNING', 
+            image: '/assets/images/project1.jpeg', 
+            link: '/work-details.html?id=1',
+            client: 'Raven Studio',
+            year: '2023',
+            description: 'Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.',
+            details: 'Scelerisque fermentum duisi faucibus in ornare quam sisd sit amet luctussd fav venenatis, lectus magna fringilla zac urna.',
+            gallery: ['/assets/images/project-dt-1.jpeg', '/assets/images/project3.jpeg', '/assets/images/project4.jpeg']
+        },
+        { 
+            id: '2', 
+            title: 'Diesel H1', 
+            category: 'PHOTOGRAPHY', 
+            image: '/assets/images/project2.jpeg', 
+            link: '/work-details.html?id=2',
+            client: 'Diesel',
+            year: '2022',
+            description: 'Photography project for Diesel H1 campaign.',
+            details: '',
+            gallery: []
+        },
+        { id: '3', title: 'Seven Studio', category: 'MOBILE DESIGNING', image: '/assets/images/project3.jpeg', link: '/work-details.html?id=3' },
+        { id: '4', title: 'Raven Studio', category: 'Branding', image: '/assets/images/project4.jpeg', link: '/work-details.html?id=4' },
+        { id: '5', title: 'Submarine', category: 'MOBILE DESIGNING', image: '/assets/images/project5.jpeg', link: '/work-details.html?id=5' },
+        { id: '6', title: 'Hydra Merc', category: 'WEB DESIGNING', image: '/assets/images/project6.jpeg', link: '/work-details.html?id=6' }
     ],
     experience: [
         { id: '1', period: '2007 - 2017', title: 'Framer Designer & Developer', company: 'Bluebase Designs', description: 'Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor rhoncus dolor purus non enim praesent in elementum sahas facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etisam dignissim diam quis enim lobortis viverra orci sagittis eu volutpat odio facilisis mauris sit.' },

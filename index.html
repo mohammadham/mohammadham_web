@@ -60,12 +60,12 @@
                             <a class="overlay-link" href="./about.html"></a>
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
                             <div class="img-box">
-                                <img src="./assets/images/me.png" alt="About Me">
+                                <img src="./assets/images/me.png" alt="About Me" data-bind="hero.image">
                             </div>
                             <div class="infos">
-                                <h4>A WEB DESIGNER</h4>
-                                <h1>David Henderson.</h1>
-                                <p>I am a Web Designer based in san francisco.</p>
+                                <h4 data-bind="hero.title">A WEB DESIGNER</h4>
+                                <h1 data-bind="hero.name">David Henderson.</h1>
+                                <p data-bind="hero.description">I am a Web Designer based in san francisco.</p>
                                 <a href="#" class="about-btn">
                                     <img src="./assets/images/icon.svg" alt="Button">
                                 </a>
@@ -211,20 +211,10 @@
                             
                         <div class="about-client-box info-box shadow-box">
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                            <div class="clients d-flex align-items-start gap-24 justify-content-center">
-                                <div class="client-item">
-                                    <h1>07</h1>
-                                    <p>Years <br>Experience</p>
-                                </div>
-
-                                <div class="client-item">
-                                    <h1>+125</h1>
-                                    <p>CLIENTS <br>WORLDWIDE</p>
-                                </div>
-
-                                <div class="client-item">
-                                    <h1>+210</h1>
-                                    <p>Total <br>Projects</p>
+                            <div class="clients d-flex align-items-start gap-24 justify-content-center" data-bind-list="stats">
+                                <div class="client-item" data-template>
+                                    <h1 data-bind-item="value">07</h1>
+                                    <p><span data-bind-item="label">Years</span> <br><span data-bind-item="sublabel">Experience</span></p>
                                 </div>
                             </div>
                         </div>
@@ -274,6 +264,7 @@
     <script src="./assets/js/bootstrap.bundle.min.js"></script>
     <script src="./assets/js/aos.js"></script>
     <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/data-loader.js"></script>
     <script src="./assets/js/spa.js"></script>
 </body>
 </html>

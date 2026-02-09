@@ -62,22 +62,10 @@
                     <div class="col-md-4">
                         <div class="service-sidebar" data-aos="fade-right">
                             <div class="service-sidebar-inner shadow-box">
-                                <ul>
-                                    <li>
-                                        <i class="iconoir-camera icon"></i>
-                                        PHOTOGRAPHY
-                                    </li>
-                                    <li>
-                                        <i class="iconoir-design-pencil icon"></i>
-                                        WEB DESIGNING
-                                    </li>
-                                    <li>
-                                        <i class="iconoir-color-filter icon"></i>
-                                        BRANDING
-                                    </li>
-                                    <li>
-                                        <i class="iconoir-dev-mode-phone icon"></i>
-                                        DEVELOPMENT
+                                <ul data-bind-list="services">
+                                    <li data-template>
+                                        <i class="iconoir-camera icon" data-bind-item-attr="class:icon"></i>
+                                        <span data-bind-item="title">PHOTOGRAPHY</span>
                                     </li>
                                 </ul>
                             </div>
@@ -90,22 +78,10 @@
 
                         <div class="service-content-wrap" data-aos="zoom-in">
                             <div class="service-content-inner shadow-box">
-                                <div class="service-items">
-                                    <div class="service-item">
-                                        <h3>Photography</h3>
-                                        <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.</p>
-                                    </div>
-                                    <div class="service-item">
-                                        <h3>Web Designing</h3>
-                                        <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.</p>
-                                    </div>
-                                    <div class="service-item">
-                                        <h3>Branding</h3>
-                                        <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.</p>
-                                    </div>
-                                    <div class="service-item">
-                                        <h3>Development</h3>
-                                        <p>Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.</p>
+                                <div class="service-items" data-bind-list="services">
+                                    <div class="service-item" data-template>
+                                        <h3 data-bind-item="title">Photography</h3>
+                                        <p data-bind-item="description">Sit amet luctussd fav venenatis, lectus magna fringilla inis urna, porttitor asna rhoncus dolor purus non enim aberitin praesent in elementum sahas facilisis leo, vel fringilla est etisam dignissim.</p>
                                     </div>
                                 </div>
                             </div>
