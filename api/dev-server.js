@@ -238,7 +238,10 @@ function serveStatic(req, res, pathname) {
     if (pathname === '/' || pathname === '') {
         filePath = path.join(ROOT_DIR, 'index.html');
     }
-
+     // Handle trailing slash directories (e.g., /admin/)
+    if (pathname.endsWith('/')) {
+        filePath = path.join(ROOT_DIR, pathname, 'index.html');
+    }
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
