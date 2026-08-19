@@ -1,18 +1,18 @@
-# Cloudflare Workers Configuration
+# Cloudflare Workers configuration
 name = "portfolio-api"
 main = "index.js"
 compatibility_date = "2024-01-01"
 
-# KV Namespace binding (create in Cloudflare dashboard)
+# KV Namespace binding.
+# AFTER: wrangler kv:namespace create PORTFOLIO_KV
+# replace the IDs below with the real ones returned by that command.
 [[kv_namespaces]]
 binding = "PORTFOLIO_KV"
-id = "your-kv-namespace-id"
-preview_id = "your-preview-kv-namespace-id"
+id = "YOUR_PRODUCTION_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
 
-# Environment variables (set in Cloudflare dashboard for production)
+# Environment variables. Admin credentials are set as SECRETS:
+#   wrangler secret put ADMIN_USERNAME
+#   wrangler secret put ADMIN_PASSWORD
 [vars]
 SESSION_TTL = "604800"
-
-# Admin credentials باید به صورت Secret تنظیم شوند:
-# wrangler secret put ADMIN_USERNAME
-# wrangler secret put ADMIN_PASSWORD

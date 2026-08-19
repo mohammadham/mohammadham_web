@@ -156,11 +156,8 @@
                                 <div class="about-services-box info-box shadow-box h-full">
                                     <a href="./service.html" class="overlay-link"></a>
                                     <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                    <div class="icon-boxes">
-                                        <i class="iconoir-camera"></i>
-                                        <i class="iconoir-design-pencil"></i>
-                                        <i class="iconoir-color-filter"></i>
-                                        <i class="iconoir-dev-mode-phone"></i>
+                                    <div class="icon-boxes" data-bind-list="services">
+                                        <i class="iconoir-camera" data-template data-bind-item="icon"></i>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="infos">

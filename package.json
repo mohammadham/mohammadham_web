@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio website with Cloudflare Workers API + Pages frontend",
+  "scripts": {
+    "dev": "node api/dev-server.js",
+    "dev:api": "node api/server.js",
+    "deploy:worker": "wrangler deploy --config api/wrangler.toml",
+    "deploy:pages": "wrangler pages deploy . --project-name=portfolio-site",
+    "preview": "wrangler dev --config api/wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0"
+  }
+}

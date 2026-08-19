@@ -1,0 +1,6 @@
+# Proxy API calls from the Pages domain to the Worker
+# Replace WITH_YOUR_WORKER with your actual worker subdomain (e.g. portfolio-api.your-name.workers.dev)
+/api/*  https://WITH_YOUR_WORKER/api/:splat  200
+
+# SPA fallback: serve index.html for unknown routes
+/*  /index.html  200

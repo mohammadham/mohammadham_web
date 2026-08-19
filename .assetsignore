@@ -1,0 +1,11 @@
+api/
+demo/
+.github/
+light/
+mailer.php
+server.log
+README.md
+*.md
+test_reports/
+.assetsignore
+.gitignore

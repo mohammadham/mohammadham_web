@@ -8,6 +8,10 @@ const DEFAULT_ADMIN_PASSWORD = 'admin12345';
 const DEFAULT_SESSION_TTL = 60 * 60 * 24 * 7;
 const PORTFOLIO_KEY = 'portfolio:data';
 const SESSION_PREFIX = 'session:';
+const LOGIN_RATE_PREFIX = 'login_rate:';
+const CSRF_PREFIX = 'csrf:';
+const LOGIN_RATE_LIMIT = 5; // Max failed attempts
+const LOGIN_RATE_WINDOW_SECONDS = 300; // 5 minutes
 
 const defaultData = {
     siteSettings: {
@@ -107,14 +111,25 @@ const defaultData = {
 
 let memoryPortfolio = JSON.parse(JSON.stringify(defaultData));
 const memorySessions = new Set();
+let memoryLoginAttempts = new Map();
+const memoryCsrfTokens = new Set();
+let memoryAdminHash = null;
 
 function corsHeaders() {
     return {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token',
         'Content-Type': 'application/json'
     };
+}
+
+function getClientIp(request) {
+    const cfConnectingIp = request.headers.get('CF-Connecting-IP');
+    if (cfConnectingIp) return cfConnectingIp;
+    const xForwardedFor = request.headers.get('X-Forwarded-For');
+    if (xForwardedFor) return xForwardedFor.split(',')[0].trim();
+    return 'unknown';
 }
 
 function jsonResponse(payload, status = 200) {
@@ -172,6 +187,119 @@ function generateId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// ─── PASSWORD HASHING (SHA-256 + salt) ───────────────
+async function hashPassword(password, salt) {
+    const data = `${salt}:${password}`;
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const encoder = new TextEncoder();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    // Fallback for environments without WebCrypto
+    return `${salt}:${password}`;
+}
+
+async function getAdminHashEntry(env) {
+    const admin = getAdminCredentials(env);
+    const kv = getKv(env);
+    if (kv) {
+        const stored = await kv.get('admin:hash');
+        if (stored) return JSON.parse(stored);
+    }
+    if (memoryAdminHash) return memoryAdminHash;
+
+    // Generate hash entry
+    const salt = generateId();
+    const hash = await hashPassword(admin.password, salt);
+    const entry = { username: admin.username, salt, hash };
+
+    if (kv) {
+        await kv.put('admin:hash', JSON.stringify(entry));
+    } else {
+        memoryAdminHash = entry;
+    }
+    return entry;
+}
+
+// ─── RATE LIMITING ───────────────────────────────────
+async function checkLoginRateLimit(env, ip) {
+    const key = `${LOGIN_RATE_PREFIX}${ip}`;
+    const kv = getKv(env);
+    const now = Date.now();
+
+    if (kv) {
+        const raw = await kv.get(key, 'json');
+        if (raw && raw.count >= LOGIN_RATE_LIMIT && (now - raw.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) {
+            return { limited: true, retryAfter: Math.ceil((LOGIN_RATE_WINDOW_SECONDS * 1000 - (now - raw.firstAttempt)) / 1000) };
+        }
+    } else {
+        const record = memoryLoginAttempts.get(key);
+        if (record && record.count >= LOGIN_RATE_LIMIT && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) {
+            return { limited: true, retryAfter: Math.ceil((LOGIN_RATE_WINDOW_SECONDS * 1000 - (now - record.firstAttempt)) / 1000) };
+        }
+    }
+    return { limited: false };
+}
+
+async function incrementLoginRate(env, ip) {
+    const key = `${LOGIN_RATE_PREFIX}${ip}`;
+    const kv = getKv(env);
+    const now = Date.now();
+
+    if (kv) {
+        const raw = await kv.get(key, 'json');
+        const count = (raw && (now - raw.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? raw.count + 1 : 1;
+        const firstAttempt = (raw && (now - raw.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? raw.firstAttempt : now;
+        await kv.put(key, JSON.stringify({ count, firstAttempt }), { expirationTtl: LOGIN_RATE_WINDOW_SECONDS });
+    } else {
+        const record = memoryLoginAttempts.get(key);
+        const count = (record && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? record.count + 1 : 1;
+        const firstAttempt = (record && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? record.firstAttempt : now;
+        memoryLoginAttempts.set(key, { count, firstAttempt });
+    }
+}
+
+async function resetLoginRate(env, ip) {
+    const key = `${LOGIN_RATE_PREFIX}${ip}`;
+    const kv = getKv(env);
+    if (kv) {
+        await kv.delete(key);
+    } else {
+        memoryLoginAttempts.delete(key);
+    }
+}
+
+// ─── CSRF TOKEN ──────────────────────────────────────
+function generateCsrfToken() {
+    return generateId() + generateId();
+}
+
+async function issueCsrfToken(env) {
+    const token = generateCsrfToken();
+    const kv = getKv(env);
+    if (kv) {
+        await kv.put(`${CSRF_PREFIX}${token}`, '1', { expirationTtl: 3600 });
+    } else {
+        memoryCsrfTokens.add(token);
+    }
+    return token;
+}
+
+async function verifyCsrfToken(env, token) {
+    if (!token) return false;
+    const kv = getKv(env);
+    if (kv) {
+        const value = await kv.get(`${CSRF_PREFIX}${token}`);
+        if (value) {
+            await kv.delete(`${CSRF_PREFIX}${token}`);
+            return true;
+        }
+        return false;
+    }
+    return memoryCsrfTokens.has(token);
+}
+
 async function createSession(env) {
     const token = generateId();
     const kv = getKv(env);
@@ -226,21 +354,80 @@ async function handleRequest(request, env) {
         return jsonResponse({ success: true, data });
     }
 
+    if (path === '/api/contact' && method === 'POST') {
+        const body = await safeJson(request);
+        if (!body) {
+            return jsonResponse({ success: false, message: 'Invalid request body' }, 400);
+        }
+
+        const { name, email, subject, message } = body;
+        if (!name || !email || !message) {
+            return jsonResponse({ success: false, message: 'Name, email and message are required' }, 400);
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return jsonResponse({ success: false, message: 'Invalid email format' }, 400);
+        }
+
+        // In production, send email via provider (Resend, SendGrid, Email Workers).
+        // For now, log it (Cloudflare Worker has console.log).
+        console.log(`[Contact] ${name} <${email}>: ${subject || '(no subject)'}`);
+        console.log(`[Contact] ${message}`);
+
+        return jsonResponse({ success: true, message: 'Message received. Thank you!' });
+    }
+
     if (path === '/api/admin/login' && method === 'POST') {
         const body = await safeJson(request);
         if (!body) {
             return jsonResponse({ success: false, message: 'Invalid request body' }, 400);
         }
 
-        const { username, password } = body;
-        const admin = getAdminCredentials(env);
+        const ip = getClientIp(request);
 
-        if (username === admin.username && password === admin.password) {
-            const session = await createSession(env);
-            return jsonResponse({ success: true, token: session.token, expiresIn: session.ttl });
+        // Rate limiting
+        const rateCheck = await checkLoginRateLimit(env, ip);
+        if (rateCheck.limited) {
+            return jsonResponse({ 
+                success: false, 
+                message: 'Too many login attempts. Please try again later.',
+                retryAfter: rateCheck.retryAfter 
+            }, 429);
         }
 
-        return jsonResponse({ success: false, message: 'Invalid credentials' }, 401);
+        const { username, password } = body;
+        const adminEntry = await getAdminHashEntry(env);
+
+        // Verify against salted hash
+        const inputHash = await hashPassword(password, adminEntry.salt);
+        const isValid = username === adminEntry.username && inputHash === adminEntry.hash;
+
+        if (!isValid) {
+            await incrementLoginRate(env, ip);
+            return jsonResponse({ success: false, message: 'Invalid credentials' }, 401);
+        }
+
+        await resetLoginRate(env, ip);
+        const session = await createSession(env);
+        const csrfToken = await issueCsrfToken(env);
+        return jsonResponse({ 
+            success: true, 
+            token: session.token, 
+            csrfToken,
+            expiresIn: session.ttl 
+        });
+    }
+
+    if (path === '/api/admin/csrf' && method === 'GET') {
+        const token = getAuthToken(request);
+        const valid = await isSessionValid(env, token);
+        if (!valid) {
+            return jsonResponse({ success: false, message: 'Unauthorized' }, 401);
+        }
+        const csrfToken = await issueCsrfToken(env);
+        return jsonResponse({ success: true, csrfToken });
     }
 
     if (path === '/api/admin/logout' && method === 'POST') {
@@ -262,6 +449,16 @@ async function handleRequest(request, env) {
     const isAuthorized = await isSessionValid(env, token);
     if (!isAuthorized) {
         return jsonResponse({ success: false, message: 'Unauthorized' }, 401);
+    }
+
+    // CSRF protection for mutating admin endpoints
+    const isMutating = ['POST', 'PUT', 'DELETE'].includes(method);
+    if (isMutating) {
+        const csrfToken = request.headers.get('X-CSRF-Token');
+        const csrfValid = await verifyCsrfToken(env, csrfToken);
+        if (!csrfValid) {
+            return jsonResponse({ success: false, message: 'Invalid CSRF token' }, 403);
+        }
     }
 
     if (path === '/api/admin/portfolio' && method === 'PUT') {

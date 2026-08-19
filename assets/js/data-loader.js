@@ -6,25 +6,57 @@
 window.PortfolioData = {
     data: null,
     listeners: [],
-    
-    // Initialize: Fetch data once and cache it
+    fallback: {
+        hero: { name: 'David Henderson', title: 'A WEB DESIGNER', description: 'I am a Web Designer based in San Francisco.', image: '/assets/images/me.png', username: '@davidhenderson' },
+        stats: [], services: [], projects: [], experience: [], education: [],
+        skills: [], awards: [], socialLinks: [], blog: [],
+        contact: { emails: [], phones: [], address: '' },
+        about: { summary: '', detailedBio: '' },
+        siteSettings: { siteName: 'Gridx Portfolio', logo: '/assets/images/logo.svg', copyright: 'All rights reserved' }
+    },
+
+    showLoader() {
+        const loader = document.querySelector('[data-page-loader]');
+        if (loader) loader.classList.add('active');
+        document.body.classList.add('page-loading');
+    },
+
+    hideLoader() {
+        const loader = document.querySelector('[data-page-loader]');
+        if (loader) loader.classList.remove('active');
+        document.body.classList.remove('page-loading');
+    },
+
+    showApiError() {
+        document.querySelectorAll('[data-api-error]').forEach(el => {
+            el.textContent = 'Unable to connect to the API. Showing cached content.';
+            el.classList.add('show');
+        });
+    },
+
     async init() {
         if (this.data) return this.data;
-        
+
+        this.showLoader();
+
         try {
             const response = await fetch('/api/portfolio');
             if (!response.ok) throw new Error('Failed to fetch portfolio data');
-            
             const result = await response.json();
-            if (result.success) {
+            if (result && result.success) {
                 this.data = result.data;
-                this.notify();
-                return this.data;
+            } else {
+                throw new Error('Invalid API response');
             }
         } catch (error) {
             console.error('Portfolio Data Error:', error);
-            // Fallback to static content if API fails, or show error
+            this.data = this.fallback;
+            this.showApiError();
         }
+
+        this.hideLoader();
+        this.notify();
+        return this.data;
     },
 
     // Bind data to elements
@@ -34,8 +66,8 @@ window.PortfolioData = {
         // 1. Simple Bindings (Text, Images, Links)
         const elements = rootElement.querySelectorAll('[data-bind]');
         elements.forEach(el => {
-            // Skip if inside a template/list that hasn't been processed yet
-            if (el.closest('[data-bind-list]') || el.closest('[data-bind-detail]')) return;
+            // Skip if inside a template/list/detail that is bound separately
+            if (this.isInsideTemplate(el)) return;
 
             const path = el.getAttribute('data-bind');
             const value = this.getValue(path);
@@ -45,8 +77,12 @@ window.PortfolioData = {
         // 2. List Bindings
         this.bindLists(rootElement);
 
-        // 3. Detail View Binding (for work-details.html, etc.)
+        // 3. Detail View Binding (for work-details.html, blog-details.html, etc.)
         this.bindDetail(rootElement);
+    },
+
+    isInsideTemplate(el) {
+        return Boolean(el.closest('[data-bind-list]') || el.closest('[data-bind-detail]'));
     },
 
     // Apply value to an element based on its type/attributes
@@ -80,6 +116,8 @@ window.PortfolioData = {
     },
 
     // Bind Lists (Arrays)
+    // FIX: Template is removed from live DOM entirely (not just hidden via
+    // display:none) to prevent duplicate rendering.
     bindLists(rootElement) {
         const listContainers = rootElement.querySelectorAll('[data-bind-list]');
         
@@ -89,7 +127,7 @@ window.PortfolioData = {
             
             if (!Array.isArray(items)) return;
 
-            // Find template: look for an element with 'data-template' or use the first child
+            // Find template: an element with 'data-template' OR the first child.
             let template = container.querySelector('[data-template]');
             if (!template) {
                 template = container.firstElementChild;
@@ -97,20 +135,18 @@ window.PortfolioData = {
                 template.setAttribute('data-template', 'true');
             }
 
-            // Hide template
-            template.style.display = 'none';
+            // IMPORTANT: Clone the template, then clear the container entirely.
+            // This removes the template (and any stale children) from the DOM,
+            // preventing the "extra item" duplicate-count bug.
+            const templateClone = template.cloneNode(true);
+            templateClone.removeAttribute('data-template');
+            templateClone.style.display = '';
 
-            // Remove all OTHER children
-            Array.from(container.children).forEach(child => {
-                if (child !== template) child.remove();
-            });
+            container.innerHTML = '';
 
             // Render items
-            items.forEach((item, index) => {
-                const clone = template.cloneNode(true);
-                clone.removeAttribute('data-template');
-                clone.style.display = ''; 
-                
+            items.forEach((item) => {
+                const clone = templateClone.cloneNode(true);
                 this.bindItemInContext(clone, item);
                 container.appendChild(clone);
             });

@@ -132,6 +132,9 @@ async function handleLogin(e) {
         }
 
         localStorage.setItem('admin_token', data.token);
+        if (data.csrfToken) {
+            localStorage.setItem('admin_csrf', data.csrfToken);
+        }
         await showDashboard();
         showToast('ورود موفقیت‌آمیز', 'success');
     } catch (error) {
@@ -155,6 +158,7 @@ async function handleLogout() {
     }
 
     localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_csrf');
     portfolioData = null;
     isDirty = false;
     showLogin();
@@ -229,13 +233,15 @@ async function handleSave() {
     collectFormData();
 
     const token = localStorage.getItem('admin_token');
+    const csrfToken = localStorage.getItem('admin_csrf');
 
     try {
         const response = await fetch(`${API_BASE}/api/admin/portfolio`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'X-CSRF-Token': csrfToken || ''
             },
             body: JSON.stringify(portfolioData)
         });
