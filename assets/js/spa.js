@@ -34,22 +34,36 @@
         if (url.pathname.includes('/admin')) return false;
         if (ASSET_EXTENSIONS.test(url.pathname)) return false;
 
-        const samePath = url.pathname === window.location.pathname && url.search === window.location.search;
-        if (samePath && url.hash) return false;
+        // Normalize both current + target paths, treating '/' and '/index.html' as same
+        const norm = (p) => p === '/' ? '/index.html' : p;
+        const samePage = norm(url.pathname) === norm(window.location.pathname) && url.search === window.location.search;
+        if (samePage) return false;
 
         return true;
     };
 
     const showLoader = () => {
-        if (typeof window.showPageLoader === 'function') {
-            window.showPageLoader();
+        // Full-screen loader only for initial page load
+        // For SPA nav we use a top progress bar + mini spinner instead
+        const bar = document.querySelector('[data-spa-progress]');
+        if (bar) {
+            bar.classList.add('active');
+            bar.style.width = '25%';
+            setTimeout(() => { if (bar.classList.contains('active')) bar.style.width = '70%'; }, 200);
         }
+        document.body.classList.add('spa-loading');
     };
 
     const hideLoader = () => {
-        if (typeof window.hidePageLoader === 'function') {
-            window.hidePageLoader();
+        const bar = document.querySelector('[data-spa-progress]');
+        if (bar) {
+            bar.style.width = '100%';
+            setTimeout(() => {
+                bar.classList.remove('active');
+                bar.style.width = '0%';
+            }, 250);
         }
+        document.body.classList.remove('spa-loading');
     };
 
     const applyTestIds = (rootDoc) => {
@@ -167,7 +181,15 @@
                 throw new Error('Main container not found');
             }
 
+            // Fade-out current main, then swap, then fade-in
+            currentMain.style.transition = 'opacity 0.2s ease';
+            currentMain.style.opacity = '0';
+            await new Promise(r => setTimeout(r, 180));
+
+            newMain.style.opacity = '0';
+            newMain.style.transition = 'opacity 0.35s ease';
             currentMain.replaceWith(newMain);
+            requestAnimationFrame(() => { newMain.style.opacity = '1'; });
 
             if (doc.title) {
                 document.title = doc.title;

@@ -270,7 +270,7 @@ async function handleAPI(req, res, pathname, body) {
         }
 
         // Rate limiting on contact submissions (spam prevention)
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
         const contactCheck = await checkContactRateLimit(ip);
         if (contactCheck.limited) {
             res.writeHead(429, headers);
@@ -301,8 +301,7 @@ async function handleAPI(req, res, pathname, body) {
             return;
         }
 
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-        
+        const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
         // Rate limiting
         const rateCheck = await checkLoginRateLimit(ip);
         if (rateCheck.limited) {

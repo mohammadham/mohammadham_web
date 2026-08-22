@@ -24,9 +24,13 @@
 <body>
 
     <!-- Page Loader -->
-    <div data-page-loader class="page-loader">
+    <div data-page-loader class="page-loader active">
         <div class="loader-spinner"></div>
+        <div class="loader-brand" data-bind="siteSettings.siteName">Gridx Portfolio</div>
     </div>
+
+    <!-- SPA Top Progress Bar -->
+    <div class="spa-progress-bar" data-spa-progress></div>
 
     <!-- API Error Fallback -->
     <div data-api-error></div>

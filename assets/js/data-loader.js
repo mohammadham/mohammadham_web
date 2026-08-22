@@ -69,7 +69,10 @@ window.PortfolioData = {
             this.showApiError();
         }
 
-        this.hideLoader();
+        // this.hideLoader();
+        document.body.classList.add('data-loaded');
+        // small delay so painted content is visible before loader fades out
+        setTimeout(() => this.hideLoader(), 150);
         this.notify();
         return this.data;
     },
@@ -161,10 +164,16 @@ window.PortfolioData = {
 
             // Render items
             items.forEach((item) => {
+                try {
                 const clone = templateClone.cloneNode(true);
                 this.bindItemInContext(clone, item);
                 container.appendChild(clone);
+                } catch (err) {
+                    console.error('bindItemInContext failed for item', item, err);
+                }
             });
+            // Mark container as rendered so CSS can reveal it
+            container.setAttribute('data-list-ready', 'true');
         });
     },
 
@@ -226,7 +235,7 @@ window.PortfolioData = {
             const bindingDef = child.getAttribute('data-bind-item-attr');
             const [attr, field] = bindingDef.split(':');
             if (attr && field) {
-                const val = getValue(field, item);
+                const val = this.getValue(field, item);
                 if (val) {
                     if (attr === 'class') {
                         const existing = child.getAttribute('class') || '';
@@ -243,7 +252,7 @@ window.PortfolioData = {
             const bindingDef = contextElement.getAttribute('data-bind-item-attr');
             const [attr, field] = bindingDef.split(':');
             if (attr && field) {
-                const val = getValue(field, item);
+                const val = this.getValue(field, item);
                 if (val) {
                     if (attr === 'class') {
                         const existing = contextElement.getAttribute('class') || '';
