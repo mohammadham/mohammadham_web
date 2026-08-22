@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/iconoir@2.1.0/css/iconoir.min.css">
 
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="./assets/css/aos.css">
@@ -19,6 +19,17 @@
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
 <body>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "YOUR_ACCOUNT_TOKEN"}'></script>
+<body>
+
+    <!-- Page Loader -->
+    <div data-page-loader class="page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- API Error Fallback -->
+    <div data-api-error></div>
 
     <main class="main-homepage">
 
@@ -26,9 +37,9 @@
         <header class="header-area">
             <div class="container">
                 <div class="gx-row d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="logo">
-                        <img src="./assets/images/logo.svg" alt="Logo">
-                    </a>
+<a href="./index.html" class="logo">
+                         <img src="./assets/images/logo.svg" alt="Logo" loading="lazy">
+                     </a>
 
                     <nav class="navbar">
                         <ul class="menu">
@@ -60,15 +71,15 @@
                             <a class="overlay-link" href="./about.html"></a>
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
                             <div class="img-box">
-                                <img src="./assets/images/me.png" alt="About Me" data-bind="hero.image">
+                                <img src="./assets/images/me.png" alt="About Me" data-bind="hero.image" loading="lazy">
                             </div>
                             <div class="infos">
                                 <h4 data-bind="hero.title">A WEB DESIGNER</h4>
                                 <h1 data-bind="hero.name">David Henderson.</h1>
                                 <p data-bind="hero.description">I am a Web Designer based in san francisco.</p>
-                                <a href="#" class="about-btn">
-                                    <img src="./assets/images/icon.svg" alt="Button">
-                                </a>
+                                 <a href="#" class="about-btn">
+                                     <img src="./assets/images/icon.svg" alt="Button" loading="lazy">
+                                 </a>
                             </div>
                         </div>
                     </div>
@@ -88,38 +99,38 @@
 
                             <div class="gx-row d-flex gap-24">
                                 <div data-aos="zoom-in">
-                                    <div class="about-crenditials-box info-box shadow-box h-full">
-                                        <a class="overlay-link" href="./credentials.html"></a>
-                                        <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                        <img src="./assets/images/sign.png" alt="Sign">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="infos">
-                                                <h4>more about me</h4>
-                                                <h1>Credentials</h1>
-                                            </div>
+<div class="about-crenditials-box info-box shadow-box h-full" data-bind-attr="href:credentials.url">
+    <a class="overlay-link" href="./credentials.html"></a>
+     <img src="./assets/images/bg1.png" alt="BG" class="bg-img" data-bind-attr="src:credentials.background" loading="lazy">
+     <img src="./assets/images/sign.png" alt="Sign" data-bind-attr="src:credentials.sign" loading="lazy">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="infos">
+            <h4 data-bind="credentials.subtitle">more about me</h4>
+            <h1 data-bind="credentials.title">Credentials</h1>
+        </div>
     
-                                            <a href="./credentials.html" class="about-btn">
-                                                <img src="./assets/images/icon.svg" alt="Button">
-                                            </a>
-    
-                                        </div>
+         <a href="./credentials.html" class="about-btn" data-bind-attr="href:credentials.buttonUrl">
+             <img src="./assets/images/icon.svg" alt="Button" data-bind-attr="src:credentials.buttonIcon" loading="lazy">
+         </a>
+    </div>
+</div>
                                     </div>
                                 </div>
 
                                 <div data-aos="zoom-in">
                                     <div class="about-project-box info-box shadow-box h-full">
                                         <a class="overlay-link" href="./works.html"></a>
-                                        <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                        <img src="./assets/images/my-works.png" alt="My Works">
+                                        <img src="./assets/images/bg1.png" alt="BG" class="bg-img" loading="lazy">
+                                         <img src="./assets/images/my-works.png" alt="My Works" loading="lazy">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div class="infos">
                                                 <h4>SHOWCASE</h4>
                                                 <h1>Projects</h1>
                                             </div>
     
-                                            <a href="#" class="about-btn">
-                                                <img src="./assets/images/icon.svg" alt="Button">
-                                            </a>
+                                             <a href="#" class="about-btn">
+                                                 <img src="./assets/images/icon.svg" alt="Button" loading="lazy">
+                                             </a>
     
                                         </div>
                                     </div>
@@ -134,39 +145,39 @@
                     <div class="col-md-12">
                         <div class="blog-service-profile-wrap d-flex gap-24">
                             <div data-aos="zoom-in">
-                                <div class="about-blog-box info-box shadow-box h-full">
-                                    <a href="./blog.html" class="overlay-link"></a>
-                                    <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                    <img src="./assets/images/gfonts.png" alt="GFonts">
+                                <div class="about-blog-box info-box shadow-box h-full" data-bind-attr="href:blog[0].url">
+                                     <a class="overlay-link" href="./blog.html" data-bind-attr="href:blog[0].url"></a>
+                                     <img src="./assets/images/bg1.png" alt="BG" class="bg-img" data-bind-attr="src:blog[0].background" loading="lazy">
+                                     <img src="./assets/images/gfonts.png" alt="GFonts" data-bind-attr="src:blog[0].image" loading="lazy">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="infos">
-                                            <h4>Blog</h4>
-                                            <h1>GFonts</h1>
+                                            <h4 data-bind="blog[0].title">Blog</h4>
+                                            <h1 data-bind="blog[0].name">GFonts</h1>
                                         </div>
     
-                                        <a href="./blog.html" class="about-btn">
-                                            <img src="./assets/images/icon.svg" alt="Button">
-                                        </a>
+                                         <a href="./blog.html" class="about-btn" data-bind-attr="href:blog[0].buttonUrl">
+                                             <img src="./assets/images/icon.svg" alt="Button" data-bind-attr="src:blog[0].buttonIcon" loading="lazy">
+                                         </a>
     
                                     </div>
                                 </div>
                             </div>
 
                             <div data-aos="zoom-in" class="flex-1">
-                                <div class="about-services-box info-box shadow-box h-full">
-                                    <a href="./service.html" class="overlay-link"></a>
-                                    <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                    <div class="icon-boxes" data-bind-list="services">
-                                        <i class="iconoir-camera" data-template data-bind-item="icon"></i>
-                                    </div>
+                                <div class="about-services-box info-box shadow-box h-full" data-bind-attr="href:services[0].url">
+                                    <a class="overlay-link" href="./service.html" data-bind-attr="href:services[0].url"></a>
+                                    <img src="./assets/images/bg1.png" alt="BG" class="bg-img" data-bind-attr="src:services[0].background">
+                                     <div class="icon-boxes" data-bind-list="services" data-skeleton>
+                                <i class="icon" data-template data-bind-item-attr="class:icon"></i>
+                            </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="infos">
-                                            <h4>specialization</h4>
-                                            <h1>Services Offering</h1>
+                                            <h4 data-bind="services[0].title">specialization</h4>
+                                            <h1 data-bind="services[0].name">Services Offering</h1>
                                         </div>
     
-                                        <a href="./service.html" class="about-btn">
-                                            <img src="./assets/images/icon.svg" alt="Button">
+                                        <a href="./service.html" class="about-btn" data-bind-attr="href:services[0].buttonUrl">
+                                            <img src="./assets/images/icon.svg" alt="Button" data-bind-attr="src:services[0].buttonIcon" loading="lazy">
                                         </a>
     
                                     </div>
@@ -208,7 +219,7 @@
                             
                         <div class="about-client-box info-box shadow-box">
                             <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                            <div class="clients d-flex align-items-start gap-24 justify-content-center" data-bind-list="stats">
+                            <div class="clients d-flex align-items-start gap-24 justify-content-center" data-bind-list="stats" data-skeleton>
                                 <div class="client-item" data-template>
                                     <h1 data-bind-item="value">07</h1>
                                     <p><span data-bind-item="label">Years</span> <br><span data-bind-item="sublabel">Experience</span></p>
@@ -238,9 +249,9 @@
         <footer class="footer-area">
             <div class="container">
                 <div class="footer-content text-center">
-                    <a href="./index.html" class="logo">
-                        <img src="./assets/images/logo.svg" alt="Logo">
-                    </a>
+                     <a href="./index.html" class="logo">
+                         <img src="./assets/images/logo.svg" alt="Logo" loading="lazy">
+                     </a>
                     <ul class="footer-menu">
                         <li><a href="index.html">Home</a></li>
                         <li><a href="about.html">About</a></li>

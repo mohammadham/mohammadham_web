@@ -338,7 +338,7 @@ function renderHeroForm() {
             </div>
             <div class="form-group">
                 <label>آدرس تصویر</label>
-                <input type="text" data-field="hero.image" value="${escapeHtml(hero.image || '')}" data-testid="hero-image">
+                <input type="text" data-field="hero.image" value="${escapeHtml(hero.image || '')}" data-testid="hero-image" onkeyup="updateImagePreview(this, 'hero-image-preview')">
                 ${hero.image ? `<div class="image-preview" data-testid="hero-image-preview"><img src="${hero.image}" alt="Preview" data-testid="hero-image-preview-img"></div>` : ''}
             </div>
         </div>
@@ -960,4 +960,36 @@ function getDefaultData() {
             { id: 1, title: 'Consulted admitting is power acuteness.', date: '25 March 2022', image: '/assets/images/blog1.jpeg', excerpt: '', content: '' }
         ]
     };
+}
+
+function updateImagePreview(input, previewId) {
+    const file = input.value;
+    const previewContainer = document.querySelector(`[data-testid="${previewId}"]`);
+    const previewImg = document.querySelector(`[data-testid="${previewId}-img"]`);
+    
+    if (file) {
+        if (!previewContainer) {
+            // Create preview container if it doesn't exist
+            const newPreview = document.createElement('div');
+            newPreview.className = 'image-preview';
+            newPreview.setAttribute('data-testid', previewId);
+            newPreview.innerHTML = `<img src="${file}" alt="Preview" data-testid="${previewId}-img">`;
+            input.parentNode.appendChild(newPreview);
+        } else if (previewImg) {
+            // Update existing preview image
+            previewImg.src = file;
+        } else {
+            // Create preview image if container exists but no image
+            const newImg = document.createElement('img');
+            newImg.src = file;
+            newImg.alt = 'Preview';
+            newImg.setAttribute('data-testid', `${previewId}-img`);
+            previewContainer.appendChild(newImg);
+        }
+    } else {
+        // Remove preview if input is empty
+        if (previewContainer) {
+            previewContainer.remove();
+        }
+    }
 }

@@ -12,12 +12,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/iconoir@2.1.0/css/iconoir.min.css">
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     
     <link rel="stylesheet" href="./admin.css">
 </head>
 <body>
+    <!-- Page Loader -->
+    <div data-page-loader class="page-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- API Error Fallback -->
+    <div data-api-error></div>
+
     <div id="app">
         <!-- Login Page -->
         <div id="login-page" class="page active" data-testid="admin-login-page">

@@ -19,18 +19,33 @@ window.PortfolioData = {
         const loader = document.querySelector('[data-page-loader]');
         if (loader) loader.classList.add('active');
         document.body.classList.add('page-loading');
+        
+        // Show skeleton placeholders
+        document.querySelectorAll('[data-skeleton]').forEach(el => {
+            el.classList.add('skeleton-active');
+        });
     },
 
     hideLoader() {
         const loader = document.querySelector('[data-page-loader]');
         if (loader) loader.classList.remove('active');
         document.body.classList.remove('page-loading');
+        
+        // Hide skeleton placeholders
+        document.querySelectorAll('[data-skeleton]').forEach(el => {
+            el.classList.remove('skeleton-active');
+        });
     },
 
     showApiError() {
         document.querySelectorAll('[data-api-error]').forEach(el => {
             el.textContent = 'Unable to connect to the API. Showing cached content.';
             el.classList.add('show');
+        });
+        
+        // Also show error state on skeleton elements
+        document.querySelectorAll('[data-skeleton]').forEach(el => {
+            el.classList.add('skeleton-error');
         });
     },
 
@@ -203,14 +218,23 @@ window.PortfolioData = {
              this.applyValue(contextElement, val);
         }
         
-        // Attribute bindings (href, src, etc.)
+        // Attribute bindings (href, src, class, etc.)
+        // For 'class' we APPEND (so we keep existing classes like 'icon'),
+        // for other attrs we set (replace).
         const attrBindings = contextElement.querySelectorAll('[data-bind-item-attr]');
         attrBindings.forEach(child => {
             const bindingDef = child.getAttribute('data-bind-item-attr');
             const [attr, field] = bindingDef.split(':');
             if (attr && field) {
-                const val = this.getValue(field, item);
-                 if (val) child.setAttribute(attr, val);
+                const val = getValue(field, item);
+                if (val) {
+                    if (attr === 'class') {
+                        const existing = child.getAttribute('class') || '';
+                        child.setAttribute('class', (existing + ' ' + val).trim());
+                    } else {
+                        child.setAttribute(attr, val);
+                    }
+                }
             }
         });
 
@@ -218,9 +242,16 @@ window.PortfolioData = {
         if (contextElement.hasAttribute('data-bind-item-attr')) {
             const bindingDef = contextElement.getAttribute('data-bind-item-attr');
             const [attr, field] = bindingDef.split(':');
-             if (attr && field) {
-                const val = this.getValue(field, item);
-                if (val) contextElement.setAttribute(attr, val);
+            if (attr && field) {
+                const val = getValue(field, item);
+                if (val) {
+                    if (attr === 'class') {
+                        const existing = contextElement.getAttribute('class') || '';
+                        contextElement.setAttribute('class', (existing + ' ' + val).trim());
+                    } else {
+                        contextElement.setAttribute(attr, val);
+                    }
+                }
             }
         }
     },

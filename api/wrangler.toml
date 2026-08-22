@@ -4,12 +4,14 @@ main = "index.js"
 compatibility_date = "2024-01-01"
 
 # KV Namespace binding.
-# AFTER: wrangler kv:namespace create PORTFOLIO_KV
-# replace the IDs below with the real ones returned by that command.
+# TO SET UP:
+# 1. Run: wrangler kv:namespace create PORTFOLIO_KV
+# 2. Run: wrangler kv:namespace create PORTFOLIO_KV --preview
+# 3. Replace the id and preview_id below with the IDs returned from those commands
 [[kv_namespaces]]
 binding = "PORTFOLIO_KV"
-id = "YOUR_PRODUCTION_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+id = ""  # <-- REPLACE WITH REAL ID FROM wrangler kv:namespace create PORTFOLIO_KV
+preview_id = ""  # <-- REPLACE WITH REAL ID FROM wrangler kv:namespace create PORTFOLIO_KV --preview
 
 # Environment variables. Admin credentials are set as SECRETS:
 #   wrangler secret put ADMIN_USERNAME

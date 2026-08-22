@@ -11,13 +11,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/iconoir-icons/iconoir@main/css/iconoir.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/iconoir@2.1.0/css/iconoir.min.css">
 
     <link rel="stylesheet" href="./assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="./assets/css/aos.css">
 
     <link rel="stylesheet" href="./assets/css/style.css">
 </head>
+<body>
+    <!-- Cloudflare Web Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "YOUR_ACCOUNT_TOKEN"}'></script>
 <body>
 
     <main class="main-homepage">
@@ -26,9 +29,9 @@
         <header class="header-area">
             <div class="container">
                 <div class="gx-row d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="logo">
-                        <img src="./assets/images/logo.svg" alt="Logo">
-                    </a>
+<a href="./index.html" class="logo">
+                         <img src="./assets/images/logo.svg" alt="Logo" loading="lazy">
+                     </a>
 
                     <nav class="navbar">
                         <ul class="menu">
@@ -54,7 +57,7 @@
         <!-- Service -->
         <section class="service-area">
             <div class="container">
-                <h1 class="section-heading" data-aos="fade-up"><img src="./assets/images/star-2.png" alt="Star"> My Offerings <img src="./assets/images/star-2.png" alt="Star"></h1>
+                <h1 class="section-heading" data-aos="fade-up"><img src="./assets/images/star-2.png" alt="Star" loading="lazy"> My Offerings <img src="./assets/images/star-2.png" alt="Star" loading="lazy"></h1>
                 
                 <div class="row">
 
@@ -62,10 +65,22 @@
                     <div class="col-md-4">
                         <div class="service-sidebar" data-aos="fade-right">
                             <div class="service-sidebar-inner shadow-box">
-                                <ul data-bind-list="services">
-                                    <li data-template>
-                                        <i class="iconoir-camera icon" data-bind-item-attr="class:icon"></i>
-                                        <span data-bind-item="title">PHOTOGRAPHY</span>
+                                <ul>
+                                    <li>
+                                        <i class="iconoir-camera icon"></i>
+                                        <span>PHOTOGRAPHY</span>
+                                    </li>
+                                    <li>
+                                        <i class="iconoir-design-pencil icon"></i>
+                                        <span>WEB DESIGNING</span>
+                                    </li>
+                                    <li>
+                                        <i class="iconoir-color-filter icon"></i>
+                                        <span>BRANDING</span>
+                                    </li>
+                                    <li>
+                                        <i class="iconoir-dev-mode-phone icon"></i>
+                                        <span>DEVELOPMENT</span>
                                     </li>
                                 </ul>
                             </div>
@@ -74,7 +89,7 @@
 
                     <!-- Content -->
                     <div class="col-md-8">
-                        <h1 class="section-heading" data-aos="fade-up"><img src="./assets/images/star-2.png" alt="Star"> My Offerings <img src="./assets/images/star-2.png" alt="Star"></h1>
+                        <h1 class="section-heading" data-aos="fade-up"><img src="./assets/images/star-2.png" alt="Star" loading="lazy"> My Offerings <img src="./assets/images/star-2.png" alt="Star" loading="lazy"></h1>
 
                         <div class="service-content-wrap" data-aos="zoom-in">
                             <div class="service-content-inner shadow-box">
@@ -97,7 +112,7 @@
 
                             <div data-aos="zoom-in">
                                 <div class="about-profile-box info-box shadow-box h-full">
-                                    <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
+                                    <img src="./assets/images/bg1.png" alt="BG" class="bg-img" loading="lazy">
                                     <div class="inner-profile-icons shadow-box">
                                         <a href="#">
                                             <i class="iconoir-dribbble"></i>
@@ -124,7 +139,7 @@
                                 <div class="about-contact-box info-box shadow-box">
                                     <a class="overlay-link" href="./contact.html"></a>
                                     <img src="./assets/images/bg1.png" alt="BG" class="bg-img">
-                                    <img src="./assets/images/icon2.png" alt="Icon" class="star-icon">
+                                    <img src="./assets/images/icon2.png" alt="Icon" class="star-icon" loading="lazy">
                                     <h1>Let's <br>work <span>together.</span></h1>
                                     <a href="./contact.html" class="about-btn">
                                         <img src="./assets/images/icon.svg" alt="Button">

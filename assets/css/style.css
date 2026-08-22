@@ -93,6 +93,105 @@ a {
     animation: preloader_slide 0.5s ease-in-out 0s 1 reverse both
 }
 
+/* # Page Loader */
+.page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0F0F0F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.page-loader.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.page-loader:not(.active) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--primary_color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* # Skeleton Loading & Error States */
+.page-loading [data-skeleton] {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+.page-loading [data-skeleton]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-active {
+    min-height: 20px;
+}
+
+.skeleton-error {
+    background: #3a1a1a !important;
+    animation: none !important;
+    border: 1px solid #5a2a2a;
+}
+
+.skeleton-error::after {
+    content: 'Failed to load';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff6b6b;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+[data-api-error] {
+    display: none;
+    padding: 16px;
+    background: #3a1a1a;
+    border: 1px solid #5a2a2a;
+    border-radius: 8px;
+    color: #ff6b6b;
+    font-size: 14px;
+    text-align: center;
+    margin: 16px 0;
+}
+
+[data-api-error].show {
+    display: block;
+}
+
 
 
 /* # Margin */

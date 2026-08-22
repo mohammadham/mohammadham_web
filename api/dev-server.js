@@ -113,6 +113,85 @@ let authTokens = new Set();
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin12345';
 
+// Rate limiting constants (matching Worker)
+const LOGIN_RATE_LIMIT = 5;
+const LOGIN_RATE_WINDOW_SECONDS = 300;
+const CONTACT_RATE_LIMIT = 10;
+const CONTACT_RATE_WINDOW_SECONDS = 3600;
+
+// In-memory rate limit stores
+let loginRateAttempts = new Map();
+let contactRateAttempts = new Map();
+
+// Password hashing (SHA-256 + salt) - matching Worker
+async function hashPassword(password, salt) {
+    const data = `${salt}:${password}`;
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const encoder = new TextEncoder();
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    // Fallback for environments without WebCrypto
+    return `${salt}:${password}`;
+}
+
+// Admin hash entry (cached)
+let adminHashEntry = null;
+
+async function getAdminHashEntry() {
+    if (adminHashEntry) return adminHashEntry;
+    
+    const salt = generateId();
+    const hash = await hashPassword(ADMIN_PASSWORD, salt);
+    adminHashEntry = { username: ADMIN_USERNAME, salt, hash };
+    return adminHashEntry;
+}
+
+// Rate limiting functions
+async function checkLoginRateLimit(ip) {
+    const key = `login_rate:${ip}`;
+    const now = Date.now();
+    const record = loginRateAttempts.get(key);
+    if (record && record.count >= LOGIN_RATE_LIMIT && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) {
+        return { limited: true, retryAfter: Math.ceil((LOGIN_RATE_WINDOW_SECONDS * 1000 - (now - record.firstAttempt)) / 1000) };
+    }
+    return { limited: false };
+}
+
+async function incrementLoginRate(ip) {
+    const key = `login_rate:${ip}`;
+    const now = Date.now();
+    const record = loginRateAttempts.get(key);
+    const count = (record && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? record.count + 1 : 1;
+    const firstAttempt = (record && (now - record.firstAttempt) < LOGIN_RATE_WINDOW_SECONDS * 1000) ? record.firstAttempt : now;
+    loginRateAttempts.set(key, { count, firstAttempt });
+}
+
+async function resetLoginRate(ip) {
+    const key = `login_rate:${ip}`;
+    loginRateAttempts.delete(key);
+}
+
+async function checkContactRateLimit(ip) {
+    const key = `contact_rate:${ip}`;
+    const now = Date.now();
+    const record = contactRateAttempts.get(key);
+    if (record && record.count >= CONTACT_RATE_LIMIT && (now - record.firstAttempt) < CONTACT_RATE_WINDOW_SECONDS * 1000) {
+        return { limited: true };
+    }
+    return { limited: false };
+}
+
+async function incrementContactRate(ip) {
+    const key = `contact_rate:${ip}`;
+    const now = Date.now();
+    const record = contactRateAttempts.get(key);
+    const count = (record && (now - record.firstAttempt) < CONTACT_RATE_WINDOW_SECONDS * 1000) ? record.count + 1 : 1;
+    const firstAttempt = (record && (now - record.firstAttempt) < CONTACT_RATE_WINDOW_SECONDS * 1000) ? record.firstAttempt : now;
+    contactRateAttempts.set(key, { count, firstAttempt });
+}
+
 // Valid list sections
 const VALID_LIST_SECTIONS = ['projects', 'experience', 'education', 'skills', 'awards', 'blog', 'services', 'socialLinks', 'stats'];
 
@@ -179,6 +258,23 @@ async function handleAPI(req, res, pathname, body) {
         if (!name || !email || !message) {
             res.writeHead(400, headers);
             res.end(JSON.stringify({ success: false, message: 'Name, email and message are required' }));
+            return
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            res.writeHead(400, headers);
+            res.end(JSON.stringify({ success: false, message: 'Invalid email format' }));
+            return;
+        }
+
+        // Rate limiting on contact submissions (spam prevention)
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        const contactCheck = await checkContactRateLimit(ip);
+        if (contactCheck.limited) {
+            res.writeHead(429, headers);
+            res.end(JSON.stringify({ success: false, message: 'Too many messages sent. Please try again later.' }));
             return;
         }
 
@@ -186,6 +282,8 @@ async function handleAPI(req, res, pathname, body) {
         // Email Workers, Resend, or SendGrid. In local dev, just log it.
         console.log(`[Contact] New message from ${name} <${email}>: ${subject || '(no subject)'}`);
         console.log(`[Contact] Message: ${message}`);
+
+        await incrementContactRate(ip);
 
         res.writeHead(200, headers);
         res.end(JSON.stringify({ success: true, message: 'Message received. Thank you!' }));
@@ -203,16 +301,39 @@ async function handleAPI(req, res, pathname, body) {
             return;
         }
 
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        
+        // Rate limiting
+        const rateCheck = await checkLoginRateLimit(ip);
+        if (rateCheck.limited) {
+            res.writeHead(429, headers);
+            res.end(JSON.stringify({ 
+                success: false, 
+                message: 'Too many login attempts. Please try again later.',
+                retryAfter: rateCheck.retryAfter 
+            }));
+            return;
+        }
+
         const { username, password } = data;
-        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            const token = generateToken();
-            authTokens.add(token);
-            res.writeHead(200, headers);
-            res.end(JSON.stringify({ success: true, token, message: 'Login successful' }));
-        } else {
+        const adminEntry = await getAdminHashEntry();
+
+        // Verify against salted hash
+        const inputHash = await hashPassword(password, adminEntry.salt);
+        const isValid = username === adminEntry.username && inputHash === adminEntry.hash;
+
+        if (!isValid) {
+            await incrementLoginRate(ip);
             res.writeHead(401, headers);
             res.end(JSON.stringify({ success: false, message: 'Invalid credentials' }));
+            return;
         }
+
+        await resetLoginRate(ip);
+        const token = generateToken();
+        authTokens.add(token);
+        res.writeHead(200, headers);
+        res.end(JSON.stringify({ success: true, token, message: 'Login successful' }));
         return;
     }
 
@@ -303,6 +424,16 @@ async function handleAPI(req, res, pathname, body) {
         }
     }
 
+    // Admin: Reset data to defaults (uses embedded default from this file)
+    // MUST check /api/admin/reset BEFORE the generic list regex,
+    // otherwise "reset" is matched as a section name and fails.
+    if (pathname === '/api/admin/reset' && req.method === 'POST') {
+        portfolioData = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));
+        res.writeHead(200, headers);
+        res.end(JSON.stringify({ success: true, message: 'Data reset to default' }));
+        return;
+    }
+
     // Admin: Add item to list section (POST)
     const listMatch = pathname.match(/^\/api\/admin\/([a-zA-Z]+)$/);
     if (listMatch && req.method === 'POST') {
@@ -376,14 +507,6 @@ async function handleAPI(req, res, pathname, body) {
             res.end(JSON.stringify({ success: true, data: deleted[0] }));
             return;
         }
-    }
-
-    // Admin: Reset data to defaults (uses embedded default from this file)
-    if (pathname === '/api/admin/reset' && req.method === 'POST') {
-        portfolioData = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));
-        res.writeHead(200, headers);
-        res.end(JSON.stringify({ success: true, message: 'Data reset to default' }));
-        return;
     }
 
     // Not found

@@ -12,6 +12,9 @@ const LOGIN_RATE_PREFIX = 'login_rate:';
 const CSRF_PREFIX = 'csrf:';
 const LOGIN_RATE_LIMIT = 5; // Max failed attempts
 const LOGIN_RATE_WINDOW_SECONDS = 300; // 5 minutes
+const CONTACT_RATE_LIMIT = 10; // Max contact submissions
+const CONTACT_RATE_WINDOW_SECONDS = 3600; // 1 hour
+const CONTACT_RATE_PREFIX = 'contact_rate:';
 
 const defaultData = {
     siteSettings: {
@@ -361,6 +364,24 @@ async function handleRequest(request, env) {
         }
 
         const { name, email, subject, message } = body;
+
+        // Rate limiting on contact submissions (spam prevention)
+        const ip = getClientIp(request);
+        const contactKey = CONTACT_RATE_PREFIX + ip;
+        const kv = getKv(env);
+        const now = Date.now();
+        if (kv) {
+            const raw = await kv.get(contactKey, 'json');
+            if (raw && raw.count >= CONTACT_RATE_LIMIT && (now - raw.firstAttempt) < CONTACT_RATE_WINDOW_SECONDS * 1000) {
+                return jsonResponse({ success: false, message: 'Too many messages sent. Please try again later.' }, 429);
+            }
+        } else {
+            const record = contactRateAttempts.get(contactKey);
+            if (record && record.count >= CONTACT_RATE_LIMIT && (now - record.firstAttempt) < CONTACT_RATE_WINDOW_SECONDS * 1000) {
+                return jsonResponse({ success: false, message: 'Too many messages sent. Please try again later.' }, 429);
+            }
+        }
+
         if (!name || !email || !message) {
             return jsonResponse({ success: false, message: 'Name, email and message are required' }, 400);
         }
@@ -495,6 +516,14 @@ async function handleRequest(request, env) {
         }
     }
 
+    // MUST check /api/admin/reset BEFORE the generic list regex,
+    // otherwise "reset" is matched as a section name and fails.
+    if (path === '/api/admin/reset' && method === 'POST') {
+        const resetData = JSON.parse(JSON.stringify(defaultData));
+        await savePortfolioData(env, resetData);
+        return jsonResponse({ success: true, message: 'Data reset to default' });
+    }
+
     const listMatch = path.match(/^\/api\/admin\/([a-zA-Z]+)$/);
     if (listMatch && method === 'POST') {
         const section = listMatch[1];
@@ -557,12 +586,6 @@ async function handleRequest(request, env) {
         }
     }
 
-    if (path === '/api/admin/reset' && method === 'POST') {
-        const resetData = JSON.parse(JSON.stringify(defaultData));
-        await savePortfolioData(env, resetData);
-        return jsonResponse({ success: true, message: 'Data reset to default' });
-    }
-
     return jsonResponse({ success: false, message: 'Not found' }, 404);
 }
 
@@ -571,7 +594,3 @@ export default {
         return handleRequest(request, env);
     }
 };
-
-if (typeof module !== 'undefined') {
-    module.exports = { handleRequest, defaultData };
-}

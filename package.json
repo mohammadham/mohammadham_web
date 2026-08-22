@@ -11,6 +11,6 @@
     "preview": "wrangler dev --config api/wrangler.toml"
   },
   "devDependencies": {
-    "wrangler": "^3.60.0"
+    "wrangler": "^3.114.17"
   }
 }
