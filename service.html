@@ -17,11 +17,18 @@
     <link rel="stylesheet" href="./assets/css/aos.css">
 
     <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="./assets/css/theme-toggle.css">
 </head>
 <body>
     <!-- Cloudflare Web Analytics -->
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "YOUR_ACCOUNT_TOKEN"}'></script>
-<body>
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "YOUR_CF_BEACON_TOKEN"}'></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/logo.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/logo.svg">
+    <link rel="apple-touch-icon" href="/assets/images/logo.svg">
+    <link rel="manifest" href="/site.webmanifest">
+
     <!-- Page Loader -->
     <div data-page-loader class="page-loader active">
         <div class="loader-spinner"></div>
@@ -52,6 +59,11 @@
                     </nav>
 
                     <a href="./contact.html" class="theme-btn">Let's talk</a>
+
+                    <button class="theme-toggle" aria-label="Toggle theme">
+                        <i class="iconoir-moon"></i>
+                        <i class="iconoir-sun"></i>
+                    </button>
 
                     <div class="show-menu">
                         <span></span>

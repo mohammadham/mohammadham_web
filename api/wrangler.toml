@@ -18,3 +18,13 @@ preview_id = ""  # <-- REPLACE WITH REAL ID FROM wrangler kv:namespace create PO
 #   wrangler secret put ADMIN_PASSWORD
 [vars]
 SESSION_TTL = "604800"
+
+# R2 Bucket for KV backups
+# Run: wrangler r2 bucket create portfolio-backups
+[[r2_buckets]]
+binding = "PORTFOLIO_BACKUPS"
+bucket_name = "portfolio-backups"
+
+# Cron trigger for daily KV backup to R2
+[triggers]
+crons = ["0 0 * * *"]

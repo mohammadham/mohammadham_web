@@ -7,6 +7,27 @@
         });
     };
 
+    const initThemeToggle = () => {
+        const toggleBtn = document.querySelector('.theme-toggle');
+        if (!toggleBtn) return;
+
+        // Check for saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
+
+        if (isDark) {
+            document.body.classList.remove('light-theme');
+        } else {
+            document.body.classList.add('light-theme');
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+    };
+
     const initAOS = () => {
         if (typeof AOS === 'undefined') return;
         if (!window.__aosInitialized) {
@@ -26,6 +47,7 @@
 
     window.initPortfolioUI = () => {
         initAOS();
+        initThemeToggle();
         if (typeof window.initContactForm === 'function') {
             window.initContactForm();
         }
@@ -34,6 +56,7 @@
     $(document).ready(function() {
         initMenuToggle();
         initAOS();
+        initThemeToggle();
     });
 })(jQuery);
 

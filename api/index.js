@@ -357,6 +357,82 @@ async function handleRequest(request, env) {
         return jsonResponse({ success: true, data });
     }
 
+    // Sitemap.xml endpoint
+    if (path === '/sitemap.xml' && method === 'GET') {
+        const data = await getPortfolioData(env);
+        const baseUrl = new URL(request.url).origin;
+        const pages = [
+            { url: '/', lastmod: new Date().toISOString().split('T')[0], changefreq: 'daily', priority: '1.0' },
+            { url: '/about.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'weekly', priority: '0.8' },
+            { url: '/works.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'weekly', priority: '0.8' },
+            { url: '/service.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'weekly', priority: '0.8' },
+            { url: '/blog.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'weekly', priority: '0.7' },
+            { url: '/contact.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'monthly', priority: '0.6' },
+            { url: '/credentials.html', lastmod: new Date().toISOString().split('T')[0], changefreq: 'monthly', priority: '0.6' }
+        ];
+        
+        // Add project pages
+        if (data.projects && Array.isArray(data.projects)) {
+            data.projects.forEach(project => {
+                pages.push({
+                    url: `/work-details.html?id=${project.id}`,
+                    lastmod: new Date().toISOString().split('T')[0],
+                    changefreq: 'monthly',
+                    priority: '0.7'
+                });
+            });
+        }
+        
+        // Add blog pages
+        if (data.blog && Array.isArray(data.blog)) {
+            data.blog.forEach(post => {
+                pages.push({
+                    url: `/blog-details.html?id=${post.id}`,
+                    lastmod: new Date().toISOString().split('T')[0],
+                    changefreq: 'monthly',
+                    priority: '0.6'
+                });
+            });
+        }
+
+        const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(page => `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${page.lastmod}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+        return new Response(sitemap, {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/xml',
+                'Access-Control-Allow-Origin': '*'
+            }
+        });
+    }
+
+    // robots.txt endpoint
+    if (path === '/robots.txt' && method === 'GET') {
+        const baseUrl = new URL(request.url).origin;
+        const robots = `User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+Sitemap: ${baseUrl}/sitemap.xml`;
+
+        return new Response(robots, {
+            status: 200,
+            headers: {
+                'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'
+            }
+        });
+    }
+
     if (path === '/api/contact' && method === 'POST') {
         const body = await safeJson(request);
         if (!body) {
@@ -392,10 +468,43 @@ async function handleRequest(request, env) {
             return jsonResponse({ success: false, message: 'Invalid email format' }, 400);
         }
 
-        // In production, send email via provider (Resend, SendGrid, Email Workers).
-        // For now, log it (Cloudflare Worker has console.log).
-        console.log(`[Contact] ${name} <${email}>: ${subject || '(no subject)'}`);
-        console.log(`[Contact] ${message}`);
+        // Send email via MailChannels (free email service for Cloudflare Workers)
+        try {
+            const emailPayload = {
+                personalizations: [
+                    {
+                        to: [{ email: 'info@bluebase.com', name: 'Portfolio Owner' }],
+                        subject: subject || 'New Contact Form Message'
+                    }
+                ],
+                from: { email: email, name: name },
+                content: [
+                    {
+                        type: 'text/plain',
+                        value: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+                    },
+                    {
+                        type: 'text/html',
+                        value: `<html><body><h2>New Contact Form Message</h2><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Subject:</strong> ${subject || '(no subject)'}</p><hr><p><strong>Message:</strong></p><p>${message.replace(/\n/g, '<br>')}</p></body></html>`
+                    }
+                ]
+            };
+
+            const emailResponse = await fetch('https://api.mailchannels.net/v1/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(emailPayload)
+            });
+
+            if (!emailResponse.ok) {
+                console.error('[MailChannels] Failed to send email:', emailResponse.status, await emailResponse.text());
+            } else {
+                console.log('[MailChannels] Email sent successfully');
+            }
+        } catch (emailError) {
+            console.error('[MailChannels] Error sending email:', emailError);
+            // Don't fail the request if email fails - still return success to user
+        }
 
         return jsonResponse({ success: true, message: 'Message received. Thank you!' });
     }
@@ -589,8 +698,56 @@ async function handleRequest(request, env) {
     return jsonResponse({ success: false, message: 'Not found' }, 404);
 }
 
+// ─── CRON HANDLER FOR KV BACKUP TO R2 ──────────────────
+async function handleCron(event, env) {
+    const kv = getKv(env);
+    const r2 = env.PORTFOLIO_BACKUPS;
+    
+    if (!kv || !r2) {
+        console.log('[Cron] KV or R2 not configured, skipping backup');
+        return;
+    }
+
+    try {
+        const data = await kv.get(PORTFOLIO_KEY, 'json');
+        if (!data) {
+            console.log('[Cron] No portfolio data to backup');
+            return;
+        }
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const key = `backups/portfolio-${timestamp}.json`;
+        
+        await r2.put(key, JSON.stringify(data, null, 2), {
+            httpMetadata: { contentType: 'application/json' }
+        });
+        
+        console.log(`[Cron] Backup saved to R2: ${key}`);
+        
+        // Clean up old backups (keep last 30)
+        const list = await r2.list({ prefix: 'backups/' });
+        const backups = list.objects
+            .filter(obj => obj.key.endsWith('.json'))
+            .sort((a, b) => new Date(b.uploaded) - new Date(a.uploaded));
+        
+        if (backups.length > 30) {
+            const toDelete = backups.slice(30);
+            for (const obj of toDelete) {
+                await r2.delete(obj.key);
+                console.log(`[Cron] Deleted old backup: ${obj.key}`);
+            }
+        }
+    } catch (error) {
+        console.error('[Cron] Backup failed:', error);
+    }
+}
+
 export default {
     async fetch(request, env, ctx) {
         return handleRequest(request, env);
+    },
+    
+    async scheduled(event, env, ctx) {
+        await handleCron(event, env);
     }
 };

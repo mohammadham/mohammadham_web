@@ -267,6 +267,53 @@ window.PortfolioData = {
 
     notify() {
         // Trigger any listeners
+    },
+
+    // Update page meta tags dynamically from siteSettings
+    updateMetaTags() {
+        if (!this.data || !this.data.siteSettings) return;
+
+        const settings = this.data.siteSettings;
+        
+        // Update title
+        if (settings.siteName && document.title !== settings.siteName) {
+            document.title = settings.siteName;
+        }
+
+        // Update or create meta description
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+            metaDescription = document.createElement('meta');
+            metaDescription.setAttribute('name', 'description');
+            document.head.appendChild(metaDescription);
+        }
+        if (settings.siteDescription) {
+            metaDescription.setAttribute('content', settings.siteDescription);
+        } else if (settings.siteName) {
+            metaDescription.setAttribute('content', settings.siteName);
+        }
+
+        // Update Open Graph tags
+        this.updateOrCreateMeta('property', 'og:title', settings.siteName);
+        this.updateOrCreateMeta('property', 'og:description', settings.siteDescription || settings.siteName);
+        this.updateOrCreateMeta('property', 'og:type', 'website');
+        
+        // Update Twitter Card tags
+        this.updateOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+        this.updateOrCreateMeta('name', 'twitter:title', settings.siteName);
+        this.updateOrCreateMeta('name', 'twitter:description', settings.siteDescription || settings.siteName);
+    },
+
+    updateOrCreateMeta(attrType, attrName, content) {
+        if (!content) return;
+        
+        let meta = document.querySelector(`meta[${attrType}="${attrName}"]`);
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute(attrType, attrName);
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
     }
 };
 
@@ -274,5 +321,6 @@ window.PortfolioData = {
 document.addEventListener('DOMContentLoaded', () => {
     window.PortfolioData.init().then(() => {
         window.PortfolioData.bind();
+        window.PortfolioData.updateMetaTags();
     });
 });
