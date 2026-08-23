@@ -255,12 +255,12 @@ body.light-theme .info-box.about-services-box .icon-boxes i {
 }
 
 /* Hide/show icons based on theme */
-body.light-theme .theme-toggle .iconoir-moon,
-body:not(.light-theme) .theme-toggle .iconoir-sun {
+body.light-theme .theme-toggle .iconoir-light-bulb,
+body:not(.light-theme) .theme-toggle .light-bulb-off {
     display: none;
 }
 
-body.light-theme .theme-toggle .iconoir-sun,
-body:not(.light-theme) .theme-toggle .iconoir-moon {
+body.light-theme .theme-toggle .light-bulb-off,
+body:not(.light-theme) .theme-toggle .iconoir-light-bulb {
     display: inline-block;
 }
