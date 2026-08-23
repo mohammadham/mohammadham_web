@@ -6,261 +6,81 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     color: #fff;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease,
+                transform 0.3s ease;
     font-size: 18px;
     margin-left: 15px;
+    padding: 0;
+    line-height: 1;
 }
 
 .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
     transform: rotate(15deg);
 }
 
 .theme-toggle i {
     line-height: 1;
+    pointer-events: none;
 }
 
-/* Light Theme Overrides */
-body.light-theme {
-    background: #F7F9FC;
-    color: #949597;
-}
-
-body.light-theme .header-area {
-    background: transparent;
-}
-
-body.light-theme .header-area .navbar .menu li a {
-    color: #676767;
-}
-
-body.light-theme .header-area .navbar .menu li.active a,
-body.light-theme .header-area .navbar .menu li a:hover {
-    color: #5B78F6;
-}
-
-body.light-theme .about-area .about-me-box,
-body.light-theme .info-box {
-    background: #FFFFFF;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
-}
-
-body.light-theme .about-area .about-me-box .infos h4,
-body.light-theme .info-box .infos h4 {
-    color: #BCBCBC;
-}
-
-body.light-theme .about-area .about-me-box .infos h1,
-body.light-theme .info-box .infos h1 {
-    color: #0F0F0F;
-}
-
-body.light-theme .about-area .about-me-box .infos p {
-    color: #949597;
-}
-
-body.light-theme .about-contact-box h1 {
-    color: #0F0F0F;
-}
-
-body.light-theme .about-contact-box h1 span {
-    color: #5B78F6;
-}
-
-body.light-theme .client-item {
-    background: #FBFBFC;
-}
-
-body.light-theme .client-item h1 {
-    color: #5B78F6;
-}
-
-body.light-theme .footer-area .footer-menu li a {
-    color: #676767;
-}
-
-body.light-theme .footer-area .footer-menu li a:hover {
-    color: #5B78F6;
-}
-
-body.light-theme .footer-area .copyright {
-    color: #727272;
-}
-
-body.light-theme .theme-btn {
-    background: #323232;
-    color: #fff;
-}
-
-body.light-theme .theme-btn:hover {
-    background: #5B78F6;
-    color: #fff;
-}
-
-body.light-theme .about-services-box .icon-boxes i {
-    color: #5B78F6;
-}
-
-body.light-theme .info-box.about-services-box .icon-boxes i {
-    color: #5B78F6;
-}
-
-body.light-theme .section-heading {
-    color: #0F0F0F;
-}
-
-body.light-theme .about-area .about-edc-exp h3 {
-    color: #0F0F0F;
-}
-
-body.light-theme .about-area .about-edc-exp ul li h2 {
-    color: #5B78F6;
-}
-
-body.light-theme .credential-area .credential-sidebar h2 {
-    color: #0f0f0f;
-}
-
-body.light-theme .credential-area .credential-content .credential-about h2 {
-    color: #0f0f0f;
-}
-
-body.light-theme .credential-area .credential-content .credential-about p {
-    color: #000000;
-}
-
-body.light-theme .credential-area .credential-edc-exp .credential-edc-exp-item h3 {
-    color: #5B78F6;
-}
-
-body.light-theme .credential-area .skills-wrap h2 {
-    color: #0f0f0f;
-}
-
-body.light-theme .credential-area .skills-wrap .skill-item .name {
-    color: #5B78F6;
-}
-
-body.light-theme .service-area .service-sidebar .service-sidebar-inner ul li {
-    color: #0f0f0f;
-}
-
-body.light-theme .service-area .service-sidebar .service-sidebar-inner ul li i {
-    color: #5B78F6;
-}
-
-body.light-theme .service-area .service-content-wrap .service-content-inner .service-item {
-    background: #FBFBFC;
-}
-
-body.light-theme .service-area .service-content-wrap .service-content-inner .service-item h3 {
-    color: #BCBCBC;
-}
-
-body.light-theme .service-area .service-content-wrap .service-content-inner .service-item p {
-    color: #000000;
-}
-
-body.light-theme .blog-sidebar .blog-sidebar-inner .categories-widget ul li a,
-body.light-theme .blog-sidebar .blog-sidebar-inner .recent-post-widget ul li a {
-    color: #676767;
-}
-
-body.light-theme .blog-area .items .blog-item .content h1 a {
-    color: #0F0F0F;
-}
-
-body.light-theme .blog-area .items .blog-item .content p {
-    color: #000000;
-}
-
-body.light-theme .contact-area .contact-form h1 {
-    color: #0F0F0F;
-}
-
-body.light-theme .contact-area .contact-form form .input-group textarea,
-body.light-theme .contact-area .contact-form form .input-group input {
-    background: #FBFBFC;
-    color: #0F0F0F;
-}
-
-body.light-theme .contact-area .contact-infos h3 {
-    color: #0F0F0F;
-}
-
-body.light-theme .contact-area .contact-infos .contact-details li .right h4 {
-    color: #0F0F0F;
-}
-
-body.light-theme .contact-area .social-links li a {
-    color: #5B78F6;
-    background: #FBFBFC;
-}
-
-body.light-theme .contact-area .social-links li a:hover {
-    background: #5B78F6;
-    color: #fff;
-}
-
-body.light-theme .breadcrumb-area .breadcrumb-content .section-heading {
-    color: #0F0F0F;
-}
-
-body.light-theme .projects-area .project-item .project-info h1 {
-    color: #0F0F0F;
-}
-
-body.light-theme .project-details-wrap .project-about-2 .right-details h3 {
-    color: #0f0f0f;
-}
-
-body.light-theme .project-details-wrap .project-about-2 .right-details p {
-    color: #000000;
-}
-
-body.light-theme .credential-area .credential-sidebar .social-links li a {
-    color: #5B78F6;
-    background: #FBFBFC;
-}
-
-body.light-theme .credential-area .credential-sidebar .social-links li a:hover {
-    background: #5B78F6;
-    color: #fff;
-}
-
-body.light-theme .info-box .inner-profile-icons {
-    background: #FBFBFC;
-}
-
-body.light-theme .info-box .inner-profile-icons a {
+/* Light-mode look of the toggle button itself */
+body.light-theme .theme-toggle {
     background: #ffffff;
-    color: #5B78F6;
+    color: #323232;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
-body.light-theme .info-box .inner-profile-icons a:hover {
-    background: #5B78F6;
-    color: #fff;
+body.light-theme .theme-toggle:hover {
+    background: #f2f4fb;
+    color: var(--primary_color, #5B78F6);
 }
 
-body.light-theme .about-services-box .icon-boxes i {
-    color: #5B78F6;
-}
-
-body.light-theme .info-box.about-services-box .icon-boxes i {
-    color: #5B78F6;
-}
-
-/* Hide/show icons based on theme */
-body.light-theme .theme-toggle .iconoir-light-bulb,
-body:not(.light-theme) .theme-toggle .light-bulb-off {
+/* Icon switcher: only one icon visible at a time */
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
     display: none;
 }
 
-body.light-theme .theme-toggle .light-bulb-off,
-body:not(.light-theme) .theme-toggle .iconoir-light-bulb {
+body:not(.light-theme) .theme-toggle .icon-moon {
     display: inline-block;
+}
+
+body.light-theme .theme-toggle .icon-sun {
+    display: inline-block;
+}
+
+/* Smooth transition when switching themes */
+body,
+body * {
+    transition: background-color 0.25s ease,
+                color 0.25s ease,
+                border-color 0.25s ease;
+}
+/* Logo has hardcoded white fill in the SVG.
+   Invert it to black-ish in light mode so it stays visible. */
+body.light-theme .header-area .logo img,
+body.light-theme .footer-area .footer-content .logo img {
+    filter: brightness(0) saturate(100%);
+}
+
+/* Fix the "Let's talk" outer button that only appears in dark theme
+   context — make sure its light-mode variant is readable */
+body.light-theme .header-area .gx-row > a.theme-btn {
+    background: #323232;
+    color: #ffffff;
+    border-color: #323232;
+}
+
+body.light-theme .header-area .gx-row > a.theme-btn:hover {
+    background: var(--primary_color, #5B78F6);
+    border-color: var(--primary_color, #5B78F6);
+    color: #ffffff;
 }

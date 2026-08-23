@@ -17,7 +17,28 @@
     <link rel="stylesheet" href="./assets/css/aos.css">
 
     <link rel="stylesheet" href="./assets/css/style.css">
+     <link rel="stylesheet" id="theme-light-css" href="./assets/css/style-light.css" disabled>
     <link rel="stylesheet" href="./assets/css/theme-toggle.css">
+    <script>
+    (function(){
+        try {
+            var saved = localStorage.getItem('theme');
+            var theme = (saved === 'light' || saved === 'dark')
+                ? saved
+                : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            var apply = function(){
+                if (theme === 'light') { document.body.classList.add('light-theme'); }
+                var link = document.getElementById('theme-light-css');
+                if (link) link.disabled = (theme !== 'light');
+            };
+            if (document.body) { apply(); }
+            else { document.addEventListener('DOMContentLoaded', apply); }
+            // Also apply link state synchronously right now (link tag already parsed)
+            var link = document.getElementById('theme-light-css');
+            if (link) link.disabled = (theme !== 'light');
+        } catch(e) {}
+    })();
+    </script>
 </head>
 <body>
     <!-- Cloudflare Web Analytics -->
@@ -51,8 +72,8 @@
                          <img src="./assets/images/logo.svg" alt="Logo" loading="lazy">
                      </a>
                     <button class="theme-toggle" aria-label="Toggle theme">
-                        <i class="iconoir-light-bulb"></i>
-                        <i class="light-bulb-off"></i>
+                        <i class="iconoir-half-moon icon-moon" aria-hidden="true"></i>
+                        <i class="iconoir-sun-light icon-sun" aria-hidden="true"></i>
                     </button>
                     <nav class="navbar">
                         <ul class="menu">

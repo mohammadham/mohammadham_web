@@ -6,25 +6,38 @@
             $(".header-area .navbar").toggleClass('active');
         });
     };
+    const applyTheme = (theme) => {
+        const isLight = theme === 'light';
+        document.body.classList.toggle('light-theme', isLight);
+        const lightLink = document.getElementById('theme-light-css');
+        if (lightLink) {
+            lightLink.disabled = !isLight;
+        }
+    };
 
+    // Expose for early / SPA use
+    window.applyPortfolioTheme = applyTheme;
     const initThemeToggle = () => {
         const toggleBtn = document.querySelector('.theme-toggle');
         if (!toggleBtn) return;
 
         // Check for saved theme preference or default to dark
         const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = savedTheme ? savedTheme === 'dark' : prefersDark;
-
-        if (isDark) {
-            document.body.classList.remove('light-theme');
+                let theme;
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            theme = savedTheme;
         } else {
-            document.body.classList.add('light-theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            theme = prefersLight ? 'light' : 'dark';
         }
+        applyTheme(theme);
 
+        if (toggleBtn.dataset.themeBound === '1') return;
+        toggleBtn.dataset.themeBound = '1';
         toggleBtn.addEventListener('click', () => {
-            const isLight = document.body.classList.toggle('light-theme');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            const nextTheme = document.body.classList.contains('light-theme') ? 'dark' : 'light';
+            applyTheme(nextTheme);
+            localStorage.setItem('theme', nextTheme);
         });
     };
 
