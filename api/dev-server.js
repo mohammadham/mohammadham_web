@@ -9,7 +9,26 @@ const path = require('path');
 
 const PORT = process.env.PORT || 8001;
 const ROOT_DIR = path.join(__dirname, '..');
+const DATA_FILE = path.join(ROOT_DIR, 'data', 'portfolio.json');
 
+function loadPortfolioFromDisk() {
+    try {
+        if (fs.existsSync(DATA_FILE)) {
+            const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return parsed;
+        }
+    } catch (e) { console.error('[data] load failed:', e.message); }
+    return null;
+}
+
+function savePortfolioToDisk(data) {
+    try {
+        fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+        return true;
+    } catch (e) { console.error('[data] save failed:', e.message); return false; }
+}
 // MIME types
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -106,6 +125,15 @@ let portfolioData = {
 // Frozen snapshot of default data, used by the reset endpoint.
 const DEFAULT_PORTFOLIO = JSON.parse(JSON.stringify(portfolioData));
 
+// If a saved JSON file exists, load it (persistence across restarts).
+const _loaded = loadPortfolioFromDisk();
+if (_loaded) {
+    portfolioData = _loaded;
+    console.log(`[data] loaded ${DATA_FILE}`);
+} else {
+    savePortfolioToDisk(portfolioData);
+    console.log(`[data] seeded ${DATA_FILE}`);
+}
 // Auth tokens
 let authTokens = new Set();
 
@@ -428,11 +456,60 @@ async function handleAPI(req, res, pathname, body) {
     // otherwise "reset" is matched as a section name and fails.
     if (pathname === '/api/admin/reset' && req.method === 'POST') {
         portfolioData = JSON.parse(JSON.stringify(DEFAULT_PORTFOLIO));
+        savePortfolioToDisk(portfolioData);
         res.writeHead(200, headers);
         res.end(JSON.stringify({ success: true, message: 'Data reset to default' }));
         return;
     }
 
+    // Admin: Export ALL portfolio data as a downloadable JSON file
+    if (pathname === '/api/admin/export' && req.method === 'GET') {
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const body = JSON.stringify({
+            _meta: {
+                exportedAt: new Date().toISOString(),
+                version: 1,
+                source: 'portfolio-site'
+            },
+            portfolio: portfolioData
+        }, null, 2);
+        res.writeHead(200, {
+            ...headers,
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Disposition': `attachment; filename="portfolio-backup-${stamp}.json"`
+        });
+        res.end(body);
+        return;
+    }
+
+    // Admin: Import portfolio data from a single JSON file (full replace).
+    // Accepts either { portfolio: {...} } (from /export) or a raw portfolio {...}.
+    if (pathname === '/api/admin/import' && req.method === 'POST') {
+        const data = parseBody(body);
+        if (!data || typeof data !== 'object') {
+            res.writeHead(400, headers);
+            res.end(JSON.stringify({ success: false, message: 'Invalid JSON body' }));
+            return;
+        }
+        const incoming = (data.portfolio && typeof data.portfolio === 'object')
+            ? data.portfolio : data;
+
+        // Basic shape validation: must contain at least one known top-level key
+        const knownKeys = ['siteSettings','hero','about','stats','projects','skills',
+                           'experience','education','services','socialLinks','contact','blog','awards'];
+        const hasAny = knownKeys.some(k => Object.prototype.hasOwnProperty.call(incoming, k));
+        if (!hasAny) {
+            res.writeHead(400, headers);
+            res.end(JSON.stringify({ success: false, message: 'File does not look like a portfolio backup' }));
+            return;
+        }
+
+        portfolioData = incoming;
+        savePortfolioToDisk(portfolioData);
+        res.writeHead(200, headers);
+        res.end(JSON.stringify({ success: true, message: 'Data imported', data: portfolioData }));
+        return;
+    }
     // Admin: Add item to list section (POST)
     const listMatch = pathname.match(/^\/api\/admin\/([a-zA-Z]+)$/);
     if (listMatch && req.method === 'POST') {
